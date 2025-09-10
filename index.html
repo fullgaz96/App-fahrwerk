@@ -65,6 +65,7 @@
   <label>Fahrwerksdaten laden (JSON-Datei)</label>
   <input type="file" id="fileInput" accept=".json" />
   <button type="button" class="btn" onclick="loadFahrwerk()">Daten laden</button>
+  <button type="button" class="btn" onclick="saveFahrwerkJSON()">Als JSON speichern</button>
 </fieldset>
 
 <!-- Fahrwerksformular -->
@@ -90,18 +91,20 @@
     <input type="number" id="federH" step="0.1" />
   </fieldset>
   
-  <button type="button" class="btn" onclick="downloadProtokoll()">📝 Datei erstellen</button>
+  <button type="button" class="btn" onclick="downloadProtokoll()">📝 Markdown erstellen</button>
 </form>
 
 <script>
+  let currentFileName = "";
+
   function loadFahrwerk() {
     const fileInput = document.getElementById("fileInput");
-    const form = document.getElementById("form");
     if (!fileInput.files.length) {
       alert("Bitte eine JSON-Datei auswählen!");
       return;
     }
     const file = fileInput.files[0];
+    currentFileName = file.name; // speichert den Dateinamen für spätere Speicherung
     const reader = new FileReader();
     reader.onload = function(e) {
       try {
@@ -122,6 +125,34 @@
     reader.readAsText(file);
   }
 
+  function saveFahrwerkJSON() {
+    if (!currentFileName) {
+      alert("Bitte zuerst eine JSON-Datei laden!");
+      return;
+    }
+    const data = {
+      gabelHoehe: document.getElementById("gabelHoehe").value,
+      sagVStatisch: document.getElementById("sagVStatisch").value,
+      sagVDynamisch: document.getElementById("sagVDynamisch").value,
+      federV: document.getElementById("federV").value,
+      heckhoehe: document.getElementById("heckhoehe").value,
+      sagHStatisch: document.getElementById("sagHStatisch").value,
+      sagHDynamisch: document.getElementById("sagHDynamisch").value,
+      federH: document.getElementById("federH").value
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = currentFileName; // speichert unter dem geladenen Dateinamen
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    }, 100);
+    alert("✅ JSON-Datei gespeichert: " + currentFileName);
+  }
+
   function downloadProtokoll() {
     const d = id => document.getElementById(id).value || "-";
     const datum = new Date();
@@ -140,9 +171,8 @@ Federrate Federbein: ${d("federH")} N/mm
 `.trim();
 
     const blob = new Blob([text], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url;
+    a.href = URL.createObjectURL(blob);
     a.download = dateiname;
     document.body.appendChild(a);
     a.click();
@@ -150,7 +180,7 @@ Federrate Federbein: ${d("federH")} N/mm
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }, 100);
-    alert("✅ Datei erstellt: " + dateiname);
+    alert("✅ Markdown-Datei erstellt: " + dateiname);
   }
 </script>
 </body>
