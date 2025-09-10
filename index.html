@@ -1,16 +1,58 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Fahrwerks-App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
+  <meta charset="UTF-8" />
+  <title>🏍️ Fahrwerks-App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body { font-family: sans-serif; margin: 20px; }
-    nav button { margin-right: 10px; }
+    body {
+      font-family: -apple-system, sans-serif;
+      background: #121212;
+      color: #f0f0f0;
+      padding: 20px;
+      margin: 0;
+    }
+    h1 { color: #3a85ff; }
+    fieldset {
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background: #1e1e1e;
+    }
+    legend { font-weight: bold; color: #3a85ff; }
+    label { display: block; margin: 10px 0 4px; font-weight: bold; }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #2d2d2d;
+      color: #f0f0f0;
+    }
+    .btn {
+      padding: 14px 20px;
+      font-size: 18px;
+      background: #3a85ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      margin: 15px 0;
+    }
+    .hidden { display: none; }
+    nav button {
+      margin-right: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background: #3a85ff;
+      color: white;
+    }
     .page { display: none; }
     .page.active { display: block; }
-    button { margin-top: 5px; margin-right: 5px; }
   </style>
   <script src="app.js" defer></script>
 </head>
@@ -23,26 +65,89 @@
 
   <!-- Fahrwerksprotokoll -->
   <section id="setup" class="page active">
-    <h2>Fahrwerksprotokoll</h2>
-    <form id="setupForm">
-      <label>Motorradmodell: <input type="text" id="modell" required></label><br>
-      <label>Rennstrecke: <input type="text" id="strecke" required></label><br>
-      <label>Sag Gabel (mm): <input type="number" id="sag" required></label><br>
-      <label>Reifen: 
-        <select id="reifenSelect"></select>
-      </label><br>
-      <button type="submit">Speichern</button>
+    <form id="form">
+      <!-- Grunddaten -->
+      <fieldset>
+        <legend>Grunddaten</legend>
+        <label>Motorrad</label>
+        <select id="motorrad" required>
+          <option value="GSXR">GSXR</option>
+          <option value="GS500E">GS500E</option>
+        </select>
+        <label>Strecke</label>
+        <select id="strecke" required>
+          <option value="">-- wählen --</option>
+          <option value="OSL">Oschersleben</option>
+          <option value="SAC">Sachsenring</option>
+          <option value="STC">Spreewaldring</option>
+          <option value="GD">Gros Doelln</option>
+          <option value="MST">Most</option>
+          <option value="HARZ">Harzring</option>
+          <option value="HDBR">Heidbergring</option>
+          <option value="BRN">Brünn</option>
+          <option value="LSR">Lausitzring</option>
+          <option value="TPZ">Tor Poznań</option>
+          <option value="custom">nicht dabei</option>
+        </select>
+        <div id="customContainer" class="hidden">
+          <label>Strecke (manuell)</label>
+          <input type="text" id="streckeCustom" placeholder="z. B. Hockenheim" />
+        </div>
+        <label>Session</label>
+        <select id="session" required>
+          <option value="TR">Training</option>
+          <option value="Q">Qualifikation</option>
+          <option value="R">Rennen</option>
+          <option value="I">Instruktion</option>
+        </select>
+        <label>Datum</label>
+        <input type="date" id="datum" required />
+      </fieldset>
+
+      <!-- Reifen -->
+      <fieldset>
+        <legend>Reifen</legend>
+        <label>Vorne: Typ</label>
+        <input type="text" id="reifenVorne" />
+        <label>Vorne: Turns/Tage</label>
+        <input type="number" id="turnsVorne" />
+        <label>Vorne: Heizzyklen</label>
+        <input type="number" id="heizVorne" />
+        <label>Hinten: Typ</label>
+        <input type="text" id="reifenHinten" />
+        <label>Hinten: Turns/Tage</label>
+        <input type="number" id="turnsHinten" />
+        <label>Hinten: Heizzyklen</label>
+        <input type="number" id="heizHinten" />
+      </fieldset>
+
+      <!-- Gabel / Federbein -->
+      <fieldset>
+        <legend>Vorderrad (Gabel)</legend>
+        <label>Gabel SAG dynamisch (mm)</label>
+        <input type="number" id="sagVDynamisch" />
+      </fieldset>
+
+      <fieldset>
+        <legend>Hinterrad (Federbein)</legend>
+        <label>Federbein SAG dynamisch (mm)</label>
+        <input type="number" id="sagHDynamisch" />
+      </fieldset>
+
+      <button type="button" class="btn" onclick="saveSetup()">💾 Speichern</button>
+      <button type="button" class="btn" onclick="exportMarkdown()">📝 Markdown Export</button>
     </form>
-    <button id="export">Export als Markdown</button>
   </section>
 
   <!-- Reifenlager -->
   <section id="reifen" class="page">
     <h2>Reifenlager</h2>
     <form id="reifenForm">
-      <label>Name: <input type="text" id="reifenName" required></label>
-      <label>Luftdruck: <input type="text" id="reifenDruck" required></label>
-      <button type="submit">Hinzufügen</button>
+      <label>Name</label>
+      <input type="text" id="reifenName" required>
+      <label>Empfohlener Druck</label>
+      <input type="text" id="reifenDruck" required>
+      <button type="submit" class="btn">Hinzufügen</button>
     </form>
     <ul id="reifenListe"></ul>
   </section>
