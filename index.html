@@ -1,28 +1,46 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🏍️ Fahrwerksprotokoll & Reifenlager</title>
-  <style>
-    body { font-family: -apple-system, sans-serif; background: #121212; color: #f0f0f0; padding: 20px; margin: 0; }
-    h1, h2 { color: #3a85ff; }
-    fieldset { border: 1px solid #444; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #1e1e1e; }
-    legend { font-weight: bold; color: #3a85ff; }
-    label { display: block; margin: 10px 0 4px; font-weight: bold; }
-    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 6px; background: #2d2d2d; color: #f0f0f0; }
-    .btn { padding: 14px 20px; font-size: 18px; background: #3a85ff; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; margin: 15px 0; }
-    .hidden { display: none; }
-    #historie { margin-top:20px; padding:15px; background:#1e1e1e; border:1px solid #444; border-radius:8px; }
-    .hist-item { margin-bottom:15px; padding:10px; border-bottom:1px solid #444; }
-    .hist-item:last-child { border-bottom:none; }
-    .hist-head { color:#3a85ff; font-weight:bold; margin-bottom:5px; }
-    .hist-data { font-family: monospace; white-space: pre-wrap; font-size: 14px; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🏍️ Fahrwerksprotokoll & Reifenlager</title>
+<style>
+  body { font-family: -apple-system, sans-serif; background: #121212; color: #f0f0f0; padding: 20px; margin: 0; }
+  h1, h2 { color: #3a85ff; }
+  fieldset { border: 1px solid #444; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #1e1e1e; }
+  legend { font-weight: bold; color: #3a85ff; }
+  label { display: block; margin: 10px 0 4px; font-weight: bold; }
+  input, select, textarea { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 6px; background: #2d2d2d; color: #f0f0f0; }
+  .btn { padding: 14px 20px; font-size: 18px; background: #3a85ff; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; margin: 15px 0; }
+  .hidden { display: none; }
+  .reifen-item { display:flex; justify-content: space-between; align-items:center; background: #2d2d2d; padding: 6px 10px; border-radius:6px; margin-bottom:5px; }
+  .reifen-buttons button { margin-left:4px; padding:2px 6px; border-radius:4px; border:none; cursor:pointer; }
+  .reifen-buttons button.green{background:#4CAF50;color:white;}
+  .reifen-buttons button.red{background:#f44336;color:white;}
+  .reifen-buttons button.gray{background:#888;color:white;}
+</style>
 </head>
 <body>
-<h1>🏍️ Fahrwerksprotokoll & Reifenlager</h1>
+<h1>🏍️ Reifenlager & Fahrwerksprotokoll</h1>
 
+<!-- Reifenlager -->
+<div class="p-4 border rounded dark:border-gray-700 mb-6">
+  <h2>Reifenlager</h2>
+
+  <div class="space-x-2 mb-4">
+    <button onclick="saveReifenlager()" class="bg-blue-500 text-white px-4 py-2 rounded">Reifenlager speichern</button>
+    <input type="file" id="reifenlagerFile" accept=".json" onchange="loadReifenlager(event)" class="bg-gray-700 text-white px-4 py-2 rounded">
+  </div>
+
+  <div class="flex gap-2 mb-4">
+    <input type="text" id="neuerReifenName" placeholder="Reifenname" class="flex-1 p-2 rounded bg-gray-800 text-white">
+    <button onclick="addReifen()" class="bg-green-500 text-white px-4 py-2 rounded">+ Reifen</button>
+  </div>
+
+  <div id="reifenlagerList"></div>
+</div>
+
+<!-- Fahrwerksprotokoll -->
 <form id="fahrwerkForm">
   <!-- Grunddaten -->
   <fieldset>
@@ -50,7 +68,7 @@
     </select>
     <div id="customContainer" class="hidden">
       <label>Strecke (manuell)</label>
-      <input type="text" id="streckeCustom" placeholder="z. B. Hockenheim" />
+      <input type="text" id="streckeCustom" placeholder="z. B. Hockenheim" />
     </div>
     <label>Session</label>
     <select id="session" required>
@@ -63,100 +81,217 @@
     <input type="date" id="datum" required />
   </fieldset>
 
-  <!-- Fahrwerksdaten (gekürzt für Übersicht, Rest bleibt wie bei dir!) -->
+  <!-- Bedingungen -->
+  <fieldset>
+    <legend>Bedingungen</legend>
+    <label>Temperatur (°C)</label>
+    <input type="number" id="temp" placeholder="26" />
+    <label>Wetter</label>
+    <select id="wetter">
+      <option>sonnig</option>
+      <option>bewölkt</option>
+      <option>regnerisch</option>
+      <option>kühl</option>
+      <option>windig</option>
+    </select>
+    <label>Wind</label>
+    <input type="text" id="wind" placeholder="leicht von rechts" />
+  </fieldset>
+
+  <!-- Bestzeit -->
+  <fieldset>
+    <legend>Bestzeit</legend>
+    <div style="display:flex;gap:10px;">
+      <div style="flex:1;"><label>Min</label><input type="number" id="min" value="1" min="0" max="9" /></div>
+      <div style="flex:1;"><label>Sek</label><input type="number" id="sek" value="58" min="0" max="59" /></div>
+      <div style="flex:1;"><label>Zehntel</label><input type="number" id="zehntel" value="4" min="0" max="9" /></div>
+    </div>
+  </fieldset>
+
+  <!-- Reifen -->
+  <fieldset>
+    <legend>Reifen</legend>
+    <label>Vorne</label>
+    <select id="reifenVorne"></select>
+    <label>Hinten</label>
+    <select id="reifenHinten"></select>
+    <label>Bemerkungen Reifen</label>
+    <textarea id="reifenBem"></textarea>
+  </fieldset>
+
+  <!-- Vorderrad (Gabel) -->
   <fieldset>
     <legend>Vorderrad (Gabel)</legend>
     <label>Gabelhöhe (mm)</label><input type="number" id="gabelHoehe" />
+    <label>Gabel SAG statisch (mm)</label><input type="number" id="sagVStatisch" />
+    <label>Gabel SAG dynamisch (mm)</label><input type="number" id="sagVDynamisch" />
     <label>Federrate (N/mm)</label><input type="number" id="federV" step="0.1" />
     <label>Federvorspannung (mm)</label><input type="number" id="vorspannungV" />
     <label>Druckstufe (Umdr)</label><input type="text" id="druckV" />
     <label>Zugstufe (Umdr)</label><input type="text" id="zugV" />
+    <label>Bemerkungen Gabel</label><textarea id="gabelBem"></textarea>
   </fieldset>
 
+  <!-- Hinterrad (Federbein) -->
   <fieldset>
     <legend>Hinterrad (Federbein)</legend>
     <label>Heckhöhe (mm)</label><input type="number" id="heckhoehe" />
+    <label>Federbein SAG statisch (mm)</label><input type="number" id="sagHStatisch" />
+    <label>Federbein SAG dynamisch (mm)</label><input type="number" id="sagHDynamisch" />
     <label>Federvorspannung (mm)</label><input type="number" id="vorspannungH" />
     <label>Federrate (N/mm)</label><input type="number" id="federH" step="0.1" />
     <label>Druckstufe LS/HS</label><input type="text" id="druckH" />
     <label>Zugstufe</label><input type="text" id="zugH" />
+    <label>Bemerkungen Federbein</label><textarea id="federBem"></textarea>
   </fieldset>
 
-  <button type="button" class="btn" onclick="saveFahrwerk()">💾 Fahrwerk speichern</button>
-  <input type="file" id="fahrwerkFile" accept=".json" onchange="loadFahrwerk(event)" class="btn" />
+  <!-- Antrieb -->
+  <fieldset>
+    <legend>Antrieb</legend>
+    <label>Übersetzung (Zähne)</label><input type="text" id="uebersetzung" placeholder="44/16" />
+    <label>Kettenglieder</label><input type="number" id="glieder" />
+    <label>Bemerkungen Antrieb</label><textarea id="antriebBem"></textarea>
+  </fieldset>
+
+  <!-- Bemerkungen Gesamt -->
+  <fieldset>
+    <legend>Bemerkungen Gesamt</legend>
+    <textarea id="gesamtBem" placeholder="z. B. Vorderrad instabil"></textarea>
+  </fieldset>
+
+  <button type="button" class="btn" onclick="downloadProtokoll()">📝 Datei erstellen</button>
 </form>
 
-<div id="historie">
-  <h2>📜 Historie</h2>
-  <div id="historieList"></div>
-</div>
-
 <script>
-let fahrwerkData = { historie: [] };
+let reifenlager = [];
 
 document.getElementById("datum").valueAsDate = new Date();
 
-function saveFahrwerk() {
-  const f = id => document.getElementById(id)?.value || "-";
-  const eintrag = {
-    datum: f("datum"),
-    motorrad: f("motorrad"),
-    strecke: f("strecke") === "custom" ? f("streckeCustom") : f("strecke"),
-    session: f("session"),
-    gabelHoehe: f("gabelHoehe"),
-    federV: f("federV"),
-    vorspannungV: f("vorspannungV"),
-    druckV: f("druckV"),
-    zugV: f("zugV"),
-    heckhoehe: f("heckhoehe"),
-    vorspannungH: f("vorspannungH"),
-    federH: f("federH"),
-    druckH: f("druckH"),
-    zugH: f("zugH")
-  };
-  fahrwerkData.historie.push(eintrag);
+document.getElementById("strecke").addEventListener("change", () => {
+  document.getElementById("customContainer").classList.toggle("hidden", document.getElementById("strecke").value !== "custom");
+});
 
-  const blob = new Blob([JSON.stringify(fahrwerkData,null,2)], {type:"application/json"});
-  const a = document.createElement("a");
-  const motorradName = eintrag.motorrad.replace(/\s+/g,"_");
-  a.href = URL.createObjectURL(blob);
-  a.download = `${motorradName}_fahrwerk.json`;
-  a.click();
-
-  renderHistorie();
+function renderReifenlager(){
+  const list = document.getElementById("reifenlagerList");
+  list.innerHTML = "";
+  reifenlager.forEach((r, i)=>{
+    const div = document.createElement("div");
+    div.className = "reifen-item";
+    div.innerHTML = `<span>${r.name} | Turns: ${r.turns} | Heizzyklen: ${r.heizzyklen}</span>
+      <span class="reifen-buttons">
+        <button class="green" onclick="updateReifen(${i},1)">+ Turns</button>
+        <button class="green" onclick="updateHeiz(${i},1)">+ Heiz</button>
+        <button class="red" onclick="updateReifen(${i},-1)">- Turns</button>
+        <button class="red" onclick="updateHeiz(${i},-1)">- Heiz</button>
+        <button class="gray" onclick="removeReifen(${i})">✖</button>
+      </span>`;
+    list.appendChild(div);
+  });
+  updateDropdowns();
 }
 
-function loadFahrwerk(event){
+function updateDropdowns(){
+  const vorne = document.getElementById("reifenVorne");
+  const hinten = document.getElementById("reifenHinten");
+  [vorne,hinten].forEach(sel=>{
+    sel.innerHTML = "";
+    reifenlager.forEach(r=>{
+      const opt = document.createElement("option");
+      opt.value = r.name;
+      opt.textContent = r.name;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+function updateReifen(i,val){ reifenlager[i].turns = Math.max(0,reifenlager[i].turns+val); renderReifenlager(); }
+function updateHeiz(i,val){ reifenlager[i].heizzyklen = Math.max(0,reifenlager[i].heizzyklen+val); renderReifenlager(); }
+function addReifen(){
+  const name = document.getElementById("neuerReifenName").value.trim();
+  if(!name) return;
+  reifenlager.push({name, turns:0, heizzyklen:0});
+  document.getElementById("neuerReifenName").value="";
+  renderReifenlager();
+}
+function removeReifen(i){ reifenlager.splice(i,1); renderReifenlager(); }
+function saveReifenlager(){
+  const blob = new Blob([JSON.stringify(reifenlager,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "reifenlager.json";
+  a.click();
+}
+function loadReifenlager(event){
   const file = event.target.files[0];
   if(!file) return;
   const reader = new FileReader();
   reader.onload = e=>{
-    try{
-      fahrwerkData = JSON.parse(e.target.result);
-    }catch{
-      alert("Fehler beim Laden");
-      return;
-    }
-    renderHistorie();
+    try{reifenlager = JSON.parse(e.target.result);}catch{alert("Fehler beim Laden"); return;}
+    renderReifenlager();
   };
   reader.readAsText(file);
 }
 
-function renderHistorie(){
-  const list = document.getElementById("historieList");
-  list.innerHTML = "";
-  fahrwerkData.historie.forEach(h=>{
-    const div = document.createElement("div");
-    div.className = "hist-item";
-    div.innerHTML = `
-      <div class="hist-head">${h.datum} – ${h.motorrad} (${h.session} @ ${h.strecke})</div>
-      <div class="hist-data">
-        Gabelhöhe: ${h.gabelHoehe} | Federrate V: ${h.federV} | Vorspannung V: ${h.vorspannungV} | Druck V: ${h.druckV} | Zug V: ${h.zugV}
-        \nHeckhöhe: ${h.heckhoehe} | Federrate H: ${h.federH} | Vorspannung H: ${h.vorspannungH} | Druck H: ${h.druckH} | Zug H: ${h.zugH}
-      </div>
-    `;
-    list.appendChild(div);
-  });
+function downloadProtokoll(){
+  const f = id=>document.getElementById(id)?.value||"-";
+  const datumObj = new Date(f("datum"));
+  const datum = `${datumObj.getDate().toString().padStart(2,"0")}.${(datumObj.getMonth()+1).toString().padStart(2,"0")}.${datumObj.getFullYear().toString().slice(-2)}`;
+  const basisname = `${datumObj.getFullYear()}-${(datumObj.getMonth()+1).toString().padStart(2,"0")}-${datumObj.getDate().toString().padStart(2,"0")}_${f("motorrad")}_${f("strecke")}_${f("session")}`;
+
+  const text = `## Fahrwerksprotokoll
+Datum: ${datum}
+Motorrad: ${f("motorrad")}
+Strecke: ${f("strecke")}
+Session: ${f("session")}
+
+### Bedingungen
+Temperatur: ${f("temp")} °C
+Wetter: ${f("wetter")}
+Wind: ${f("wind") || "-"}
+
+### Bestzeit
+Min: ${f("min")}
+Sek: ${f("sek")}
+Zehntel: ${f("zehntel")}
+
+### Reifen
+Vorne: ${f("reifenVorne")}
+Hinten: ${f("reifenHinten")}
+Bemerkungen Reifen: ${f("reifenBem") || "-"}
+
+### Vorderrad (Gabel)
+Gabelhöhe: ${f("gabelHoehe")}
+SAG statisch: ${f("sagVStatisch")}
+SAG dynamisch: ${f("sagVDynamisch")}
+Federrate: ${f("federV")}
+Federvorspannung: ${f("vorspannungV")}
+Druckstufe: ${f("druckV")}
+Zugstufe: ${f("zugV")}
+Bemerkungen: ${f("gabelBem") || "-"}
+
+### Hinterrad (Federbein)
+Heckhöhe: ${f("heckhoehe")}
+SAG statisch: ${f("sagHStatisch")}
+SAG dynamisch: ${f("sagHDynamisch")}
+Federvorspannung: ${f("vorspannungH")}
+Federrate: ${f("federH")}
+Druckstufe LS/HS: ${f("druckH")}
+Zugstufe: ${f("zugH")}
+Bemerkungen: ${f("federBem") || "-"}
+
+### Antrieb
+Übersetzung: ${f("uebersetzung")}
+Kettenglieder: ${f("glieder")}
+Bemerkungen: ${f("antriebBem") || "-"}
+
+### Bemerkungen Gesamt
+${f("gesamtBem") || "-"}`.trim();
+
+  const blob = new Blob([text],{type:"text/markdown"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${basisname}.md`;
+  link.click();
 }
 </script>
 </body>
