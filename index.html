@@ -1,239 +1,281 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <title>🏍️ Fahrwerksprotokoll</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      font-family: -apple-system, sans-serif;
-      background: #121212;
-      color: #f0f0f0;
-      padding: 20px;
-      margin: 0;
-    }
-    h1 { color: #3a85ff; }
-    fieldset {
-      border: 1px solid #444;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 15px;
-      background: #1e1e1e;
-    }
-    legend {
-      font-weight: bold;
-      color: #3a85ff;
-    }
-    label {
-      display: block;
-      margin: 10px 0 4px;
-      font-weight: bold;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #444;
-      border-radius: 6px;
-      background: #2d2d2d;
-      color: #f0f0f0;
-    }
-    .btn {
-      padding: 14px 20px;
-      font-size: 18px;
-      background: #3a85ff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      width: 100%;
-      margin: 15px 0;
-    }
-    .hidden { display: none; }
-    #reifenlagerTable input { width: 60px; }
-  </style>
+<meta charset="UTF-8" />
+<title>🏍️ Fahrwerksprotokoll</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+body { font-family: -apple-system, sans-serif; background: #121212; color: #f0f0f0; padding: 20px; margin: 0; }
+h1 { color: #3a85ff; }
+fieldset { border: 1px solid #444; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #1e1e1e; }
+legend { font-weight: bold; color: #3a85ff; }
+label { display: block; margin: 10px 0 4px; font-weight: bold; }
+input, select, textarea { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 6px; background: #2d2d2d; color: #f0f0f0; }
+.btn { padding: 14px 20px; font-size: 18px; background: #3a85ff; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; margin: 15px 0; }
+.hidden { display: none; }
+.inline { display: inline-block; width: auto; margin-left: 5px; }
+#turnsHeizContainer { display: flex; gap: 5px; align-items: center; margin-top: 5px; }
+#turnsHeizContainer button { padding: 5px 10px; font-size: 14px; }
+</style>
 </head>
 <body>
-  <h1>🏍️ Fahrwerksprotokoll</h1>
-  <p><small>Alle Felder. Kein localStorage. Datei wird erstellt.</small></p>
+<h1>🏍️ Fahrwerksprotokoll</h1>
+<p><small>Alle Felder. Kein localStorage. Datei wird erstellt.</small></p>
 
-  <!-- Reifenlager Button -->
-  <button type="button" class="btn" id="loadReifenlagerBtn">Reifenlager verwalten</button>
-  <input type="file" id="reifenlagerFile" class="hidden" accept=".json" />
+<!-- Reifenlager Button -->
+<button type="button" class="btn" id="loadReifenlagerBtn">Reifenlager verwalten</button>
+<input type="file" id="reifenlagerFile" class="hidden" accept=".json" />
 
-  <!-- Reifenlager Tabelle -->
-  <div id="reifenlagerContainer" class="hidden">
-    <h2>Reifenlager</h2>
-    <table id="reifenlagerTable" border="1" style="width:100%; border-collapse: collapse;">
-      <thead>
-        <tr>
-          <th>Reifen</th>
-          <th>Turns</th>
-          <th>Heizzyklen</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <button class="btn" id="saveReifenlagerBtn">JSON speichern</button>
+<!-- Reifenlager Anzeige -->
+<div id="reifenlagerContainer" class="hidden">
+  <h2>Reifenlager</h2>
+  <label>Reifen auswählen:</label>
+  <select id="reifenSelect"></select>
+  <div id="turnsHeizContainer" class="hidden">
+    <span>Turns: <span id="turnsDisplay">0</span></span>
+    <button id="plusTurn">+ Turns</button>
+    <span>Heizzyklen: <span id="heizDisplay">0</span></span>
+    <button id="plusHeiz">+ Heiz</button>
   </div>
+  <button class="btn" id="saveReifenlagerBtn">JSON speichern</button>
+</div>
 
-  <!-- FORMULAR -->
-  <form id="form">
-    <!-- Grunddaten -->
-    <fieldset>
-      <legend>Grunddaten</legend>
-      <label>Motorrad</label>
-      <select id="motorrad" required>
-        <option value="GSXR">GSXR</option>
-        <option value="GS500E">GS500E</option>
-      </select>
-      <label>Strecke</label>
-      <select id="strecke" required>
-        <option value="">-- wählen --</option>
-        <option value="OSL">Oschersleben</option>
-        <option value="SAC">Sachsenring</option>
-        <option value="STC">Spreewaldring</option>
-        <option value="GD">Gros Doelln</option>
-        <option value="MST">Most</option>
-        <option value="HARZ">Harzring</option>
-        <option value="HDBR">Heidbergring</option>
-        <option value="BRN">Brünn</option>
-        <option value="LSR">Lausitzring</option>
-        <option value="TPZ">Tor Poznań</option>
-        <option value="custom">nicht dabei</option>
-      </select>
-      <div id="customContainer" class="hidden">
-        <label>Strecke (manuell)</label>
-        <input type="text" id="streckeCustom" placeholder="z. B. Hockenheim" />
-      </div>
-      <label>Session</label>
-      <select id="session" required>
-        <option value="TR">Training</option>
-        <option value="Q">Qualifikation</option>
-        <option value="R">Rennen</option>
-        <option value="I">Instruktion</option>
-      </select>
-      <label>Datum</label>
-      <input type="date" id="datum" required />
-    </fieldset>
+<!-- FORMULAR -->
+<form id="form">
+<!-- Grunddaten -->
+<fieldset>
+<legend>Grunddaten</legend>
+<label>Motorrad</label>
+<select id="motorrad" required>
+<option value="GSXR">GSXR</option>
+<option value="GS500E">GS500E</option>
+</select>
+<label>Strecke</label>
+<select id="strecke" required>
+<option value="">-- wählen --</option>
+<option value="OSL">Oschersleben</option>
+<option value="SAC">Sachsenring</option>
+<option value="STC">Spreewaldring</option>
+<option value="GD">Gros Doelln</option>
+<option value="MST">Most</option>
+<option value="HARZ">Harzring</option>
+<option value="HDBR">Heidbergring</option>
+<option value="BRN">Brünn</option>
+<option value="LSR">Lausitzring</option>
+<option value="TPZ">Tor Poznań</option>
+<option value="custom">nicht dabei</option>
+</select>
+<div id="customContainer" class="hidden">
+<label>Strecke (manuell)</label>
+<input type="text" id="streckeCustom" placeholder="z. B. Hockenheim" />
+</div>
+<label>Session</label>
+<select id="session" required>
+<option value="TR">Training</option>
+<option value="Q">Qualifikation</option>
+<option value="R">Rennen</option>
+<option value="I">Instruktion</option>
+</select>
+<label>Datum</label>
+<input type="date" id="datum" required />
+</fieldset>
 
-    <!-- Reifen -->
-    <fieldset>
-      <legend>Reifen</legend>
-      <label>Vorne: Typ</label>
-      <select id="reifenVorne"></select>
-      <label>Hinten: Typ</label>
-      <select id="reifenHinten"></select>
-    </fieldset>
+<!-- Bedingungen -->
+<fieldset>
+<legend>Bedingungen</legend>
+<label>Temperatur (°C)</label>
+<input type="number" id="temp" placeholder="26" />
+<label>Wetter</label>
+<select id="wetter">
+<option>sonnig</option>
+<option>bewölkt</option>
+<option>regnerisch</option>
+<option>kühl</option>
+<option>windig</option>
+</select>
+<label>Wind</label>
+<input type="text" id="wind" placeholder="leicht von rechts" />
+</fieldset>
 
-    <button type="button" class="btn" onclick="downloadProtokoll()">📝 Datei erstellen</button>
-  </form>
+<!-- Reifen -->
+<fieldset>
+<legend>Reifen</legend>
+<label>Vorne: Typ</label>
+<select id="reifenVorne"></select>
+<label>Hinten: Typ</label>
+<select id="reifenHinten"></select>
+</fieldset>
 
-  <script>
-    // Datum vorausfüllen
-    document.getElementById("datum").valueAsDate = new Date();
+<!-- Vorderrad -->
+<fieldset>
+<legend>Vorderrad (Gabel)</legend>
+<label>Gabelhöhe (mm)</label>
+<input type="number" id="gabelHoehe" />
+<label>Gabel SAG statisch (mm)</label>
+<input type="number" id="sagVStatisch" />
+<label>Gabel SAG dynamisch (mm)</label>
+<input type="number" id="sagVDynamisch" />
+<label>Federrate (N/mm)</label>
+<input type="number" id="federV" step="0.1" />
+<label>Federvorspannung (mm)</label>
+<input type="number" id="vorspannungV" />
+<label>Druckstufe (Umdr)</label>
+<input type="text" id="druckV" />
+<label>Zugstufe (Umdr)</label>
+<input type="text" id="zugV" />
+<label>Bemerkungen Gabel</label>
+<textarea id="gabelBem"></textarea>
+</fieldset>
 
-    // Custom-Strecke
-    document.getElementById("strecke").addEventListener("change", () => {
-      document.getElementById("customContainer").classList.toggle("hidden", document.getElementById("strecke").value !== "custom");
+<!-- Hinterrad -->
+<fieldset>
+<legend>Hinterrad (Federbein)</legend>
+<label>Heckhöhe (mm)</label>
+<input type="number" id="heckhoehe" />
+<label>Federbein SAG statisch (mm)</label>
+<input type="number" id="sagHStatisch" />
+<label>Federbein SAG dynamisch (mm)</label>
+<input type="number" id="sagHDynamisch" />
+<label>Federvorspannung (mm)</label>
+<input type="number" id="vorspannungH" />
+<label>Federrate (N/mm)</label>
+<input type="number" id="federH" step="0.1" />
+<label>Druckstufe LS/HS</label>
+<input type="text" id="druckH" />
+<label>Zugstufe</label>
+<input type="text" id="zugH" />
+<label>Bemerkungen Federbein</label>
+<textarea id="federBem"></textarea>
+</fieldset>
+
+<!-- Antrieb -->
+<fieldset>
+<legend>Antrieb</legend>
+<label>Übersetzung (Zähne)</label>
+<input type="text" id="uebersetzung" placeholder="44/16" />
+<label>Kettenglieder</label>
+<input type="number" id="glieder" />
+<label>Bemerkungen Antrieb</label>
+<textarea id="antriebBem"></textarea>
+</fieldset>
+
+<!-- Bemerkungen Gesamt -->
+<fieldset>
+<legend>Bemerkungen Gesamt</legend>
+<textarea id="gesamtBem" placeholder="z. B. Vorderrad instabil"></textarea>
+</fieldset>
+
+<button type="button" class="btn" onclick="downloadProtokoll()">📝 Datei erstellen</button>
+<script>
+document.getElementById("datum").valueAsDate = new Date();
+document.getElementById("strecke").addEventListener("change", () => {
+document.getElementById("customContainer").classList.toggle("hidden", document.getElementById("strecke").value !== "custom");
+});
+
+// Reifenlager
+let reifenlager = [];
+const reifenVorneSelect = document.getElementById("reifenVorne");
+const reifenHintenSelect = document.getElementById("reifenHinten");
+const reifenSelect = document.getElementById("reifenSelect");
+const reifenlagerFileInput = document.getElementById("reifenlagerFile");
+const reifenlagerContainer = document.getElementById("reifenlagerContainer");
+const turnsHeizContainer = document.getElementById("turnsHeizContainer");
+const turnsDisplay = document.getElementById("turnsDisplay");
+const heizDisplay = document.getElementById("heizDisplay");
+const plusTurn = document.getElementById("plusTurn");
+const plusHeiz = document.getElementById("plusHeiz");
+
+document.getElementById("loadReifenlagerBtn").addEventListener("click", () => reifenlagerFileInput.click());
+
+reifenlagerFileInput.addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    reifenlager = JSON.parse(e.target.result);
+    updateReifenDropdowns();
+    reifenlagerContainer.classList.remove("hidden");
+  };
+  reader.readAsText(file);
+});
+
+function updateReifenDropdowns() {
+  [reifenVorneSelect, reifenHintenSelect, reifenSelect].forEach(select => {
+    select.innerHTML = "";
+    reifenlager.forEach(r => {
+      const opt = document.createElement("option");
+      opt.value = r.name;
+      opt.textContent = r.name;
+      select.appendChild(opt);
     });
+  });
+  updateTurnHeizDisplay();
+}
 
-    // Reifenlager
-    let reifenlager = [];
+reifenSelect.addEventListener("change", updateTurnHeizDisplay);
 
-    const reifenVorneSelect = document.getElementById("reifenVorne");
-    const reifenHintenSelect = document.getElementById("reifenHinten");
-    const reifenlagerFileInput = document.getElementById("reifenlagerFile");
-    const reifenlagerContainer = document.getElementById("reifenlagerContainer");
-    const reifenlagerTableBody = document.querySelector("#reifenlagerTable tbody");
+function updateTurnHeizDisplay() {
+  const selected = reifenlager.find(r => r.name === reifenSelect.value);
+  if (selected) {
+    turnsDisplay.textContent = selected.turns;
+    heizDisplay.textContent = selected.heizzyklen;
+    turnsHeizContainer.classList.remove("hidden");
+  } else {
+    turnsHeizContainer.classList.add("hidden");
+  }
+}
 
-    document.getElementById("loadReifenlagerBtn").addEventListener("click", () => {
-      reifenlagerFileInput.click();
-    });
+plusTurn.addEventListener("click", () => {
+  const selected = reifenlager.find(r => r.name === reifenSelect.value);
+  if (selected) { selected.turns++; updateTurnHeizDisplay(); }
+});
 
-    reifenlagerFileInput.addEventListener("change", (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        try {
-          reifenlager = JSON.parse(e.target.result);
-          updateReifenDropdowns();
-          showReifenlagerTable();
-        } catch(err) {
-          alert("Fehler beim Laden der JSON-Datei");
-        }
-      };
-      reader.readAsText(file);
-    });
+plusHeiz.addEventListener("click", () => {
+  const selected = reifenlager.find(r => r.name === reifenSelect.value);
+  if (selected) { selected.heizzyklen++; updateTurnHeizDisplay(); }
+});
 
-    function updateReifenDropdowns() {
-      [reifenVorneSelect, reifenHintenSelect].forEach(select => {
-        select.innerHTML = "";
-        reifenlager.forEach(r => {
-          const opt = document.createElement("option");
-          opt.value = r.name;
-          opt.textContent = r.name;
-          select.appendChild(opt);
-        });
-      });
-    }
+document.getElementById("saveReifenlagerBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(reifenlager, null, 2)], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "reifenlager.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  alert("✅ Reifenlager JSON gespeichert.");
+});
 
-    function showReifenlagerTable() {
-      reifenlagerContainer.classList.remove("hidden");
-      reifenlagerTableBody.innerHTML = "";
-      reifenlager.forEach((r, i) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${r.name}</td>
-          <td><input type="number" value="${r.turns}" data-index="${i}" data-type="turns"/></td>
-          <td><input type="number" value="${r.heizzyklen}" data-index="${i}" data-type="heizzyklen"/></td>
-        `;
-        reifenlagerTableBody.appendChild(tr);
-      });
+// Markdown Export
+const kuerzelMap = { OSL:"Oschersleben", SAC:"Sachsenring", STC:"Spreewaldring", GD:"Gros Doelln", MST:"Most", HARZ:"Harzring", HDBR:"Heidbergring", BRN:"Brünn", LSR:"Lausitzring", TPZ:"Tor Poznań" };
 
-      // Änderungen in Inputs
-      reifenlagerTableBody.querySelectorAll("input").forEach(input => {
-        input.addEventListener("change", e => {
-          const idx = e.target.dataset.index;
-          const type = e.target.dataset.type;
-          reifenlager[idx][type] = parseInt(e.target.value) || 0;
-        });
-      });
-    }
-
-    document.getElementById("saveReifenlagerBtn").addEventListener("click", () => {
-      const blob = new Blob([JSON.stringify(reifenlager, null, 2)], {type: "application/json"});
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "reifenlager.json";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      alert("✅ Reifenlager gespeichert. Die Datei kann beim nächsten Training wieder geladen werden.");
-    });
-
-    // Markdown-Datei erzeugen
-    function downloadProtokoll() {
-      const d = id => document.getElementById(id)?.value || "-";
-      const [jahr, monat, tag] = d("datum").split("-");
-      const datum = `${tag}.${monat}.${jahr.slice(-2)}`;
-      const basisname = `${jahr}-${monat}-${tag}_${d("motorrad")}`;
-      const kurz = d("strecke") === "custom" ? (d("streckeCustom") || "Unbekannt").substring(0,3).toUpperCase() : d("strecke");
-      const sess = d("session");
-      const dateiname = `${basisname}_${kurz}_${sess}.md`;
-      const text = `Datum: ${datum} – ${d("motorrad")} – Strecke ${kurz} – Session ${sess}`.trim();
-
-      const blob = new Blob([text], { type: "text/markdown" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = dateiname;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        document.body.removeChild(a);
-      }, 100);
-      alert("✅ Datei erstellt: " + dateiname);
-    }
-  </script>
+function downloadProtokoll() {
+  const d = id => document.getElementById(id)?.value || "-";
+  const [jahr,monat,tag] = d("datum").split("-");
+  const datum = `${tag}.${monat}.${jahr.slice(-2)}`;
+  const basisname = `${jahr}-${monat}-${tag}_${d("motorrad")}`;
+  let kurz = d("strecke")==="custom" ? (d("streckeCustom")||"Unbekannt").substring(0,3).toUpperCase() : d("strecke");
+  let name = kuerzelMap[kurz]||kurz;
+  const sess = d("session");
+  const dateiname = `${basisname}_${kurz}_${sess}.md`;
+  const text = `
+Datum: ${datum} – ${d("motorrad")} – ${name} ${sess}
+## Reifen
+Vorne: ${d("reifenVorne")}
+Hinten: ${d("reifenHinten")}
+`.trim();
+  const blob = new Blob([text], { type: "text/markdown" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = dateiname;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{document.body.removeChild(a); URL.revokeObjectURL(url)},100);
+  alert("✅ Datei erstellt: "+dateiname);
+}
+</script>
 </body>
 </html>
