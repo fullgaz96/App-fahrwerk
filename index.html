@@ -20,55 +20,34 @@
     margin-bottom: 15px;
     background: #1e1e1e;
   }
-  legend {
-    font-weight: bold;
-    color: #3a85ff;
-  }
-  label {
-    display: block;
-    margin: 10px 0 4px;
-    font-weight: bold;
-  }
-  input, select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #444;
-    border-radius: 6px;
-    background: #2d2d2d;
-    color: #f0f0f0;
-  }
-  .btn {
-    padding: 14px 20px;
-    font-size: 18px;
-    background: #3a85ff;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    width: 100%;
-    margin: 15px 0;
-  }
+  legend { font-weight: bold; color: #3a85ff; }
+  label { display: block; margin: 10px 0 4px; font-weight: bold; }
+  input, select { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 6px; background: #2d2d2d; color: #f0f0f0; }
+  .btn { padding: 14px 20px; font-size: 18px; background: #3a85ff; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; margin: 15px 0; }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  th, td { border: 1px solid #444; padding: 6px; text-align: center; }
+  th { background: #2d2d2d; }
 </style>
 </head>
 <body>
 <h1>🏍️ Fahrwerksprotokoll</h1>
 
-<!-- Motorrad auswählen und JSON laden -->
 <fieldset>
-  <legend>Fahrwerkslager laden</legend>
+  <legend>Fahrwerkslager</legend>
   <label>Motorrad auswählen</label>
   <select id="motorrad">
     <option value="GSXR">GSXR</option>
     <option value="GS500E">GS500E</option>
     <option value="SV650">SV650</option>
   </select>
-  <label>Fahrwerksdaten laden (JSON-Datei)</label>
+  
+  <label>Fahrwerksdaten laden (JSON)</label>
   <input type="file" id="fileInput" accept=".json" />
+  
   <button type="button" class="btn" onclick="loadFahrwerk()">Daten laden</button>
   <button type="button" class="btn" onclick="saveFahrwerkJSON()">Als JSON speichern</button>
 </fieldset>
 
-<!-- Fahrwerksformular -->
 <form id="form">
   <fieldset>
     <legend>Fahrwerksdaten</legend>
@@ -89,13 +68,62 @@
     <input type="number" id="sagHDynamisch" />
     <label>Federrate Federbein (N/mm)</label>
     <input type="number" id="federH" step="0.1" />
+    <label>Notiz / Kommentar</label>
+    <input type="text" id="notiz" placeholder="z.B. leicht angepasst" />
   </fieldset>
-  
-  <button type="button" class="btn" onclick="downloadProtokoll()">📝 Markdown erstellen</button>
 </form>
 
+<fieldset>
+  <legend>Historie</legend>
+  <table id="historyTable">
+    <thead>
+      <tr>
+        <th>Datum</th>
+        <th>Gabelhöhe</th>
+        <th>SAG V statisch</th>
+        <th>SAG V dynamisch</th>
+        <th>Federrate V</th>
+        <th>Heckhöhe</th>
+        <th>SAG H statisch</th>
+        <th>SAG H dynamisch</th>
+        <th>Federrate H</th>
+        <th>Notiz</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="10">Keine Daten geladen</td></tr>
+    </tbody>
+  </table>
+</fieldset>
+
 <script>
+  let fahrwerkData = { motorrad: "", historie: [] };
   let currentFileName = "";
+
+  function updateHistoryTable() {
+    const tbody = document.getElementById("historyTable").querySelector("tbody");
+    tbody.innerHTML = "";
+    if (!fahrwerkData.historie.length) {
+      tbody.innerHTML = '<tr><td colspan="10">Keine Daten vorhanden</td></tr>';
+      return;
+    }
+    fahrwerkData.historie.forEach(entry => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${new Date(entry.datum).toLocaleString()}</td>
+        <td>${entry.gabelHoehe || "-"}</td>
+        <td>${entry.sagVStatisch || "-"}</td>
+        <td>${entry.sagVDynamisch || "-"}</td>
+        <td>${entry.federV || "-"}</td>
+        <td>${entry.heckhoehe || "-"}</td>
+        <td>${entry.sagHStatisch || "-"}</td>
+        <td>${entry.sagHDynamisch || "-"}</td>
+        <td>${entry.federH || "-"}</td>
+        <td>${entry.notiz || "-"}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
 
   function loadFahrwerk() {
     const fileInput = document.getElementById("fileInput");
@@ -104,21 +132,25 @@
       return;
     }
     const file = fileInput.files[0];
-    currentFileName = file.name; // speichert den Dateinamen für spätere Speicherung
+    currentFileName = file.name;
     const reader = new FileReader();
     reader.onload = function(e) {
       try {
-        const data = JSON.parse(e.target.result);
-        document.getElementById("gabelHoehe").value = data.gabelHoehe || "";
-        document.getElementById("sagVStatisch").value = data.sagVStatisch || "";
-        document.getElementById("sagVDynamisch").value = data.sagVDynamisch || "";
-        document.getElementById("federV").value = data.federV || "";
-        document.getElementById("heckhoehe").value = data.heckhoehe || "";
-        document.getElementById("sagHStatisch").value = data.sagHStatisch || "";
-        document.getElementById("sagHDynamisch").value = data.sagHDynamisch || "";
-        document.getElementById("federH").value = data.federH || "";
+        fahrwerkData = JSON.parse(e.target.result);
+        document.getElementById("motorrad").value = fahrwerkData.motorrad || "GSXR";
+        const last = fahrwerkData.historie[fahrwerkData.historie.length - 1] || {};
+        document.getElementById("gabelHoehe").value = last.gabelHoehe || "";
+        document.getElementById("sagVStatisch").value = last.sagVStatisch || "";
+        document.getElementById("sagVDynamisch").value = last.sagVDynamisch || "";
+        document.getElementById("federV").value = last.federV || "";
+        document.getElementById("heckhoehe").value = last.heckhoehe || "";
+        document.getElementById("sagHStatisch").value = last.sagHStatisch || "";
+        document.getElementById("sagHDynamisch").value = last.sagHDynamisch || "";
+        document.getElementById("federH").value = last.federH || "";
+        document.getElementById("notiz").value = last.notiz || "";
+        updateHistoryTable();
         alert("✅ Fahrwerksdaten geladen!");
-      } catch (err) {
+      } catch(err) {
         alert("Fehler beim Laden der JSON-Datei: " + err);
       }
     };
@@ -126,11 +158,8 @@
   }
 
   function saveFahrwerkJSON() {
-    if (!currentFileName) {
-      alert("Bitte zuerst eine JSON-Datei laden!");
-      return;
-    }
-    const data = {
+    const newEntry = {
+      datum: new Date().toISOString(),
       gabelHoehe: document.getElementById("gabelHoehe").value,
       sagVStatisch: document.getElementById("sagVStatisch").value,
       sagVDynamisch: document.getElementById("sagVDynamisch").value,
@@ -138,49 +167,27 @@
       heckhoehe: document.getElementById("heckhoehe").value,
       sagHStatisch: document.getElementById("sagHStatisch").value,
       sagHDynamisch: document.getElementById("sagHDynamisch").value,
-      federH: document.getElementById("federH").value
+      federH: document.getElementById("federH").value,
+      notiz: document.getElementById("notiz").value
     };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    
+    if (!fahrwerkData.motorrad) {
+      fahrwerkData.motorrad = document.getElementById("motorrad").value;
+    }
+    fahrwerkData.historie.push(newEntry);
+    updateHistoryTable();
+
+    const blob = new Blob([JSON.stringify(fahrwerkData, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = currentFileName; // speichert unter dem geladenen Dateinamen
+    a.download = currentFileName || fahrwerkData.motorrad + "_fahrwerk.json";
     document.body.appendChild(a);
     a.click();
     setTimeout(() => {
       document.body.removeChild(a);
       URL.revokeObjectURL(a.href);
     }, 100);
-    alert("✅ JSON-Datei gespeichert: " + currentFileName);
-  }
-
-  function downloadProtokoll() {
-    const d = id => document.getElementById(id).value || "-";
-    const datum = new Date();
-    const dateiname = `${datum.getFullYear()}-${(datum.getMonth()+1).toString().padStart(2,"0")}-${datum.getDate().toString().padStart(2,"0")}_Fahrwerksprotokoll.md`;
-    
-    const text = `## Fahrwerksprotokoll\n
-Gabelhöhe: ${d("gabelHoehe")} mm
-Gabel SAG statisch: ${d("sagVStatisch")} mm
-Gabel SAG dynamisch: ${d("sagVDynamisch")} mm
-Federrate Gabel: ${d("federV")} N/mm
-
-Heckhöhe: ${d("heckhoehe")} mm
-Federbein SAG statisch: ${d("sagHStatisch")} mm
-Federbein SAG dynamisch: ${d("sagHDynamisch")} mm
-Federrate Federbein: ${d("federH")} N/mm
-`.trim();
-
-    const blob = new Blob([text], { type: "text/markdown" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = dateiname;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 100);
-    alert("✅ Markdown-Datei erstellt: " + dateiname);
+    alert("✅ JSON-Datei gespeichert!");
   }
 </script>
 </body>
