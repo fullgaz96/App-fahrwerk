@@ -5,31 +5,46 @@
   <title>Fahrwerks-App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="manifest.json">
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    nav button { margin-right: 10px; }
+    .page { display: none; }
+    .page.active { display: block; }
+    button { margin-top: 5px; margin-right: 5px; }
+  </style>
   <script src="app.js" defer></script>
 </head>
 <body>
   <h1>🏍️ Fahrwerks-App</h1>
-
   <nav>
     <button onclick="showPage('setup')">Fahrwerksprotokoll</button>
-    <button onclick="showPage('tires')">Reifenlager</button>
-    <button id="export">Export als JSON</button>
-
+    <button onclick="showPage('reifen')">Reifenlager</button>
   </nav>
 
-  <section id="setup" style="display:block;">
+  <!-- Fahrwerksprotokoll -->
+  <section id="setup" class="page active">
     <h2>Fahrwerksprotokoll</h2>
     <form id="setupForm">
-      <label>Motorradmodell: <input type="text" id="bike"></label><br>
-      <label>Rennstrecke: <input type="text" id="track"></label><br>
-      <label>Sag Gabel (mm): <input type="number" id="sagFork"></label><br>
+      <label>Motorradmodell: <input type="text" id="modell" required></label><br>
+      <label>Rennstrecke: <input type="text" id="strecke" required></label><br>
+      <label>Sag Gabel (mm): <input type="number" id="sag" required></label><br>
+      <label>Reifen: 
+        <select id="reifenSelect"></select>
+      </label><br>
       <button type="submit">Speichern</button>
     </form>
+    <button id="export">Export als Markdown</button>
   </section>
 
-  <section id="tires" style="display:none;">
+  <!-- Reifenlager -->
+  <section id="reifen" class="page">
     <h2>Reifenlager</h2>
-    <ul id="tireList"></ul>
+    <form id="reifenForm">
+      <label>Name: <input type="text" id="reifenName" required></label>
+      <label>Luftdruck: <input type="text" id="reifenDruck" required></label>
+      <button type="submit">Hinzufügen</button>
+    </form>
+    <ul id="reifenListe"></ul>
   </section>
 </body>
 </html>
