@@ -1,168 +1,205 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="dark">
 <head>
-  <meta charset="UTF-8" />
-  <title>🏍️ Fahrwerksprotokoll & Reifenlager</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      font-family: -apple-system, sans-serif;
-      background: #121212;
-      color: #f0f0f0;
-      padding: 20px;
-      margin: 0;
-    }
-    h1 {
-      color: #3a85ff;
-    }
-    fieldset {
-      border: 1px solid #444;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 15px;
-      background: #1e1e1e;
-    }
-    legend {
-      font-weight: bold;
-      color: #3a85ff;
-    }
-    label {
-      display: block;
-      margin: 10px 0 4px;
-      font-weight: bold;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #444;
-      border-radius: 6px;
-      background: #2d2d2d;
-      color: #f0f0f0;
-    }
-    .btn {
-      padding: 14px 20px;
-      font-size: 18px;
-      background: #3a85ff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      width: 100%;
-      margin: 15px 0;
-    }
-    .hidden {
-      display: none;
-    }
-    .reifen-item {
-      background: #2d2d2d;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 6px;
-    }
-    .reifen-item button {
-      margin-left: 5px;
-      padding: 5px 10px;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fahrwerksprotokoll & Reifenlager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <h1>🏍️ Fahrwerksprotokoll</h1>
-  <p><small>Alle Felder. Kein localStorage. Datei wird erstellt.</small></p>
+<body class="dark:bg-gray-900 dark:text-white p-6">
+  <h1 class="text-2xl font-bold mb-6">Fahrwerksprotokoll & Reifenlager</h1>
 
-  <!-- Formular Fahrwerksprotokoll (deine Struktur bleibt gleich!) -->
-  <form id="form">
-    <!-- Beispiel: nur ein Teil gezeigt, deine ganzen Felder bleiben hier drin -->
-    <fieldset>
-      <legend>Grunddaten</legend>
-      <label>Motorrad</label>
-      <select id="motorrad" required>
-        <option value="GSXR">GSXR</option>
-        <option value="GS500E">GS500E</option>
-      </select>
-      <label>Strecke</label>
-      <select id="strecke" required>
-        <option value="">-- wählen --</option>
-        <option value="OSL">Oschersleben</option>
-        <option value="SAC">Sachsenring</option>
-        <option value="STC">Spreewaldring</option>
-        <option value="GD">Gros Doelln</option>
-        <option value="MST">Most</option>
-        <option value="HARZ">Harzring</option>
-        <option value="HDBR">Heidbergring</option>
-        <option value="BRN">Brünn</option>
-        <option value="LSR">Lausitzring</option>
-        <option value="TPZ">Tor Poznań</option>
-        <option value="custom">nicht dabei</option>
-      </select>
-    </fieldset>
-    <!-- … alle deine restlichen Felder bleiben unverändert … -->
+  <!-- Fahrwerksprotokoll -->
+  <div class="mb-8 p-4 border rounded dark:border-gray-700">
+    <h2 class="text-lg font-bold mb-4">Fahrwerksprotokoll</h2>
 
-    <button type="button" class="btn" onclick="downloadProtokoll()">📝 Datei erstellen</button>
-  </form>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label>Datum:</label>
+        <input id="datum" type="date" class="w-full p-2 rounded bg-gray-800 text-white">
+      </div>
+
+      <div>
+        <label>Motorrad:</label>
+        <select id="motorrad" class="w-full p-2 rounded bg-gray-800 text-white">
+          <option value="GSX-R 750">GSX-R 750</option>
+          <option value="SV 650">SV 650</option>
+          <option value="GS 500E">GS 500E</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Rennstrecke:</label>
+        <select id="rennstrecke" class="w-full p-2 rounded bg-gray-800 text-white">
+          <option value="Oschersleben">Oschersleben</option>
+          <option value="Most">Most</option>
+          <option value="Brno">Brno</option>
+          <option value="Rijeka">Rijeka</option>
+          <option value="Schweizer Dreieck">Schweizer Dreieck</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Session:</label>
+        <input id="session" type="text" class="w-full p-2 rounded bg-gray-800 text-white" placeholder="z.B. Turn 1">
+      </div>
+
+      <div>
+        <label>Reifen vorne:</label>
+        <select id="reifenVorne" class="w-full p-2 rounded bg-gray-800 text-white"></select>
+      </div>
+
+      <div>
+        <label>Reifen hinten:</label>
+        <select id="reifenHinten" class="w-full p-2 rounded bg-gray-800 text-white"></select>
+      </div>
+
+      <div>
+        <label>Federbein:</label>
+        <input id="federbein" type="text" class="w-full p-2 rounded bg-gray-800 text-white">
+      </div>
+
+      <div>
+        <label>Gabel:</label>
+        <input id="gabel" type="text" class="w-full p-2 rounded bg-gray-800 text-white">
+      </div>
+
+      <div>
+        <label>Übersetzung:</label>
+        <input id="uebersetzung" type="text" class="w-full p-2 rounded bg-gray-800 text-white">
+      </div>
+
+      <div>
+        <label>Kettenspannung:</label>
+        <input id="kettenspannung" type="text" class="w-full p-2 rounded bg-gray-800 text-white">
+      </div>
+
+      <div class="col-span-2">
+        <label>Notizen:</label>
+        <textarea id="notizen" class="w-full p-2 rounded bg-gray-800 text-white"></textarea>
+      </div>
+    </div>
+
+    <button onclick="generateMarkdown()" class="mt-4 bg-green-500 text-white px-4 py-2 rounded">Markdown exportieren</button>
+  </div>
 
   <!-- Reifenlager -->
-  <h1>🛞 Reifenlager</h1>
-  <button class="btn" onclick="loadReifenlager()">📂 Reifenlager laden</button>
-  <div id="reifenListe"></div>
-  <button class="btn" onclick="saveReifenlager()">💾 Reifenlager speichern</button>
+  <div class="p-4 border rounded dark:border-gray-700">
+    <h2 class="text-lg font-bold mb-4">Reifenlager</h2>
+
+    <div class="space-x-2 mb-4">
+      <button onclick="saveReifenlager()" class="bg-blue-500 text-white px-4 py-2 rounded">Reifenlager speichern</button>
+      <input type="file" id="reifenlagerFile" accept=".json" onchange="loadReifenlager(event)" class="bg-gray-700 text-white px-4 py-2 rounded">
+    </div>
+
+    <div id="reifenlagerList" class="space-y-2"></div>
+  </div>
 
   <script>
     let reifenlager = [];
 
-    // Reifenlager laden
-    async function loadReifenlager() {
-      try {
-        const response = await fetch("reifenlager.json");
-        reifenlager = await response.json();
-        renderReifenlager();
-        alert("✅ Reifenlager geladen!");
-      } catch (e) {
-        alert("⚠️ Konnte reifenlager.json nicht laden.");
-      }
+    // Markdown erzeugen
+    function generateMarkdown() {
+      const datum = document.getElementById("datum").value;
+      const motorrad = document.getElementById("motorrad").value;
+      const rennstrecke = document.getElementById("rennstrecke").value;
+      const session = document.getElementById("session").value;
+      const reifenVorne = document.getElementById("reifenVorne").value;
+      const reifenHinten = document.getElementById("reifenHinten").value;
+      const federbein = document.getElementById("federbein").value;
+      const gabel = document.getElementById("gabel").value;
+      const uebersetzung = document.getElementById("uebersetzung").value;
+      const kettenspannung = document.getElementById("kettenspannung").value;
+      const notizen = document.getElementById("notizen").value;
+
+      const md = `# Fahrwerksprotokoll
+- Datum: ${datum}
+- Motorrad: ${motorrad}
+- Rennstrecke: ${rennstrecke}
+- Session: ${session}
+- Reifen vorne: ${reifenVorne}
+- Reifen hinten: ${reifenHinten}
+- Federbein: ${federbein}
+- Gabel: ${gabel}
+- Übersetzung: ${uebersetzung}
+- Kettenspannung: ${kettenspannung}
+
+## Notizen
+${notizen}`;
+
+      const filename = `${datum}_${motorrad}_${rennstrecke}_${session}.md`;
+      const blob = new Blob([md], { type: "text/markdown" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
     }
 
-    // Reifenlager speichern
-    function saveReifenlager() {
-      const blob = new Blob([JSON.stringify(reifenlager, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "reifenlager.json";
-      a.click();
-      URL.revokeObjectURL(url);
-      alert("✅ Reifenlager gespeichert!");
-    }
-
-    // Anzeige aktualisieren
+    // Reifenlager rendern
     function renderReifenlager() {
-      const container = document.getElementById("reifenListe");
-      container.innerHTML = "";
+      const list = document.getElementById("reifenlagerList");
+      list.innerHTML = "";
+      const reifenVorne = document.getElementById("reifenVorne");
+      const reifenHinten = document.getElementById("reifenHinten");
+
+      reifenVorne.innerHTML = "";
+      reifenHinten.innerHTML = "";
+
       reifenlager.forEach((reifen, index) => {
         const div = document.createElement("div");
-        div.className = "reifen-item";
+        div.className = "flex items-center justify-between bg-gray-800 p-2 rounded";
+
         div.innerHTML = `
-          <b>${reifen.name}</b><br>
-          Turns: ${reifen.turns} 
-          <button onclick="changeTurns(${index}, 1)">+</button>
-          <button onclick="changeTurns(${index}, -1)">-</button><br>
-          Heizzyklen: ${reifen.heizzyklen}
-          <button onclick="changeHeiz(${index}, 1)">+</button>
-          <button onclick="changeHeiz(${index}, -1)">-</button>
+          <span>${reifen.name} | Turns: ${reifen.turns} | Heizzyklen: ${reifen.heizzyklen}</span>
+          <div>
+            <button onclick="updateReifen(${index}, 'turns', 1)" class="bg-green-500 px-2 py-1 rounded">+ Turn</button>
+            <button onclick="updateReifen(${index}, 'turns', -1)" class="bg-red-500 px-2 py-1 rounded">- Turn</button>
+            <button onclick="updateReifen(${index}, 'heizzyklen', 1)" class="bg-green-500 px-2 py-1 rounded">+ Heiz</button>
+            <button onclick="updateReifen(${index}, 'heizzyklen', -1)" class="bg-red-500 px-2 py-1 rounded">- Heiz</button>
+          </div>
         `;
-        container.appendChild(div);
+        list.appendChild(div);
+
+        // Dropdowns befüllen
+        const opt1 = document.createElement("option");
+        opt1.value = reifen.name;
+        opt1.textContent = reifen.name;
+        reifenVorne.appendChild(opt1);
+
+        const opt2 = document.createElement("option");
+        opt2.value = reifen.name;
+        opt2.textContent = reifen.name;
+        reifenHinten.appendChild(opt2);
       });
     }
 
-    // Turns ändern
-    function changeTurns(index, delta) {
-      reifenlager[index].turns = Math.max(0, reifenlager[index].turns + delta);
+    function updateReifen(index, field, diff) {
+      reifenlager[index][field] = Math.max(0, reifenlager[index][field] + diff);
       renderReifenlager();
     }
 
-    // Heizzyklen ändern
-    function changeHeiz(index, delta) {
-      reifenlager[index].heizzyklen = Math.max(0, reifenlager[index].heizzyklen + delta);
-      renderReifenlager();
+    function saveReifenlager() {
+      const blob = new Blob([JSON.stringify(reifenlager, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "reifenlager.json";
+      link.click();
+    }
+
+    function loadReifenlager(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          reifenlager = JSON.parse(e.target.result);
+          renderReifenlager();
+        } catch (err) {
+          alert("Fehler beim Laden der Reifenlager-Datei!");
+        }
+      };
+      reader.readAsText(file);
     }
   </script>
 </body>
