@@ -1,0 +1,9 @@
+{
+  "name": "Fahrwerks-App",
+  "short_name": "Fahrwerk",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "description": "Protokoll für Fahrwerks- und Reifendaten",
+  "icons": []
+}
