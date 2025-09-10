@@ -1,79 +1,230 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<title>Mini Fahrwerkslager Demo</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body { font-family: -apple-system, sans-serif; background:#121212; color:#f0f0f0; padding:20px;}
-h1{color:#3a85ff;}
-input,select{width:100%;padding:8px;margin:5px 0;background:#2d2d2d;color:#f0f0f0;border:1px solid #444;border-radius:6px;}
-button{padding:10px;margin:5px 0;border:none;border-radius:6px;background:#3a85ff;color:white;cursor:pointer;width:100%;}
-</style>
+  <meta charset="UTF-8" />
+  <title>🏍️ Fahrwerksprotokoll</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: -apple-system, sans-serif;
+      background: #121212;
+      color: #f0f0f0;
+      padding: 20px;
+      margin: 0;
+    }
+    h1 { color: #3a85ff; }
+    fieldset {
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background: #1e1e1e;
+    }
+    legend {
+      font-weight: bold;
+      color: #3a85ff;
+    }
+    label {
+      display: block;
+      margin: 10px 0 4px;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #2d2d2d;
+      color: #f0f0f0;
+    }
+    .btn {
+      padding: 14px 20px;
+      font-size: 18px;
+      background: #3a85ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      margin: 15px 0;
+    }
+    .hidden { display: none; }
+    .flex { display: flex; gap: 10px; }
+    .flex > div { flex: 1; }
+  </style>
 </head>
 <body>
-<h1>Mini Fahrwerkslager Demo</h1>
+<h1>🏍️ Fahrwerksprotokoll</h1>
+<p><small>Alle Felder. Dateien pro Motorrad. Reifenlager oben.</small></p>
 
-<label>Motorrad</label>
-<select id="motorrad">
-  <option value="GSXR">GSXR</option>
-  <option value="GS500E">GS500E</option>
-  <option value="SV650">SV650</option>
-</select>
+<!-- REIFENLAGER -->
+<fieldset>
+  <legend>Reifenlager</legend>
+  <label>Reifen auswählen</label>
+  <select id="reifenAuswahl"></select>
+  <button type="button" class="btn" onclick="addTurn()">+ Turn</button>
+  <button type="button" class="btn" onclick="removeTurn()">- Turn</button>
+  <pre id="reifenAnzeige"></pre>
+  <button type="button" class="btn" onclick="loadReifenlager()">Reifenlager laden</button>
+</fieldset>
 
-<label>Gabelhöhe (mm)</label><input type="number" id="gabelHoehe">
-<label>SAG vorne statisch (mm)</label><input type="number" id="sagVStatisch">
-<label>SAG vorne dynamisch (mm)</label><input type="number" id="sagVDynamisch">
-<label>Federrate vorne (N/mm)</label><input type="number" id="federV" step="0.1">
-<label>Heckhöhe (mm)</label><input type="number" id="heckhoehe">
-<label>SAG hinten statisch (mm)</label><input type="number" id="sagHStatisch">
-<label>SAG hinten dynamisch (mm)</label><input type="number" id="sagHDynamisch">
-<label>Federrate hinten (N/mm)</label><input type="number" id="federH" step="0.1">
+<!-- FORMULAR -->
+<form id="form">
+  <!-- Grunddaten -->
+  <fieldset>
+    <legend>Grunddaten</legend>
+    <label>Motorrad</label>
+    <select id="motorrad" required onchange="loadFahrwerk()">
+      <option value="GSXR">GSXR</option>
+      <option value="GS500E">GS500E</option>
+      <option value="SV650">SV650</option>
+    </select>
+    <label>Strecke</label>
+    <select id="strecke" required>
+      <option value="">-- wählen --</option>
+      <option value="OSL">Oschersleben</option>
+      <option value="SAC">Sachsenring</option>
+      <option value="STC">Spreewaldring</option>
+    </select>
+    <label>Session</label>
+    <select id="session" required>
+      <option value="TR">Training</option>
+      <option value="Q">Qualifikation</option>
+      <option value="R">Rennen</option>
+      <option value="I">Instruktion</option>
+    </select>
+    <label>Datum</label>
+    <input type="date" id="datum" required />
+  </fieldset>
 
-<input type="file" id="loadFile" accept=".json">
-<button onclick="loadFahrwerk()">🚀 Laden</button>
-<button onclick="saveFahrwerk()">💾 Speichern</button>
+  <!-- Vorderrad (Gabel) -->
+  <fieldset>
+    <legend>Vorderrad (Gabel)</legend>
+    <label>Gabelhöhe (mm)</label><input type="number" id="gabelHoehe" />
+    <label>Gabel SAG statisch (mm)</label><input type="number" id="sagVStatisch" />
+    <label>Gabel SAG dynamisch (mm)</label><input type="number" id="sagVDynamisch" />
+    <label>Federrate (N/mm)</label><input type="number" id="federV" step="0.1" />
+  </fieldset>
+
+  <!-- Hinterrad (Federbein) -->
+  <fieldset>
+    <legend>Hinterrad (Federbein)</legend>
+    <label>Heckhöhe (mm)</label><input type="number" id="heckhoehe" />
+    <label>Federbein SAG statisch (mm)</label><input type="number" id="sagHStatisch" />
+    <label>Federbein SAG dynamisch (mm)</label><input type="number" id="sagHDynamisch" />
+    <label>Federrate (N/mm)</label><input type="number" id="federH" step="0.1" />
+  </fieldset>
+
+  <button type="button" class="btn" onclick="saveFahrwerk()">💾 Fahrwerk speichern</button>
+  <button type="button" class="btn" onclick="downloadProtokoll()">📝 Markdown erstellen</button>
+</form>
 
 <script>
-let fahrwerkslager = [];
+let fahrwerkslager = {};
+let reifenlager = {};
 
-function loadFahrwerk() {
-  const file = document.getElementById("loadFile").files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    fahrwerkslager = JSON.parse(e.target.result);
-    autofill();
+// Datum vorausfüllen
+document.getElementById("datum").valueAsDate = new Date();
+
+// --- REIFENLAGER ---
+function loadReifenlager(){
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json";
+  input.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = evt => {
+      reifenlager = JSON.parse(evt.target.result);
+      updateReifenDropdown();
+    };
+    reader.readAsText(file);
   };
-  reader.readAsText(file);
+  input.click();
 }
 
-function autofill(){
+function updateReifenDropdown(){
+  const sel = document.getElementById("reifenAuswahl");
+  sel.innerHTML = "";
+  Object.keys(reifenlager).forEach(r => {
+    const opt = document.createElement("option");
+    opt.value = r;
+    opt.textContent = r + ` (Turns:${reifenlager[r].turns||0}, Heizung:${reifenlager[r].heiz||0})`;
+    sel.appendChild(opt);
+  });
+  updateReifenAnzeige();
+}
+
+function addTurn(){
+  const r = document.getElementById("reifenAuswahl").value;
+  if(!r) return;
+  reifenlager[r].turns = (reifenlager[r].turns||0)+1;
+  reifenlager[r].heiz = (reifenlager[r].heiz||0)+1;
+  updateReifenDropdown();
+}
+
+function removeTurn(){
+  const r = document.getElementById("reifenAuswahl").value;
+  if(!r) return;
+  reifenlager[r].turns = Math.max((reifenlager[r].turns||0)-1,0);
+  reifenlager[r].heiz = Math.max((reifenlager[r].heiz||0)-1,0);
+  updateReifenDropdown();
+}
+
+function updateReifenAnzeige(){
+  const pre = document.getElementById("reifenAnzeige");
+  pre.textContent = Object.entries(reifenlager).map(([r,v])=>`${r}: Turns ${v.turns||0}, Heiz ${v.heiz||0}`).join("\n");
+}
+
+// --- FAHRWERK ---
+function loadFahrwerk(){
   const moto = document.getElementById("motorrad").value;
-  const entry = fahrwerkslager.find(f => f.motorrad===moto);
-  if(entry){
-    ["gabelHoehe","sagVStatisch","sagVDynamisch","federV","heckhoehe","sagHStatisch","sagHDynamisch","federH"].forEach(id=>{
-      document.getElementById(id).value = entry[id];
-    });
-  }
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json";
+  input.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = evt => {
+      fahrwerkslager[moto] = JSON.parse(evt.target.result);
+      const data = fahrwerkslager[moto];
+      ["gabelHoehe","sagVStatisch","sagVDynamisch","federV","heckhoehe","sagHStatisch","sagHDynamisch","federH"].forEach(id=>{
+        document.getElementById(id).value = data[id] || "";
+      });
+    };
+    reader.readAsText(file);
+  };
+  input.click();
 }
-
-document.getElementById("motorrad").addEventListener("change", autofill);
 
 function saveFahrwerk(){
   const moto = document.getElementById("motorrad").value;
-  let entry = fahrwerkslager.find(f => f.motorrad===moto);
-  if(!entry){
-    entry = {motorrad:moto, setup:"Standard"};
-    fahrwerkslager.push(entry);
-  }
+  if(!fahrwerkslager[moto]) fahrwerkslager[moto] = {};
   ["gabelHoehe","sagVStatisch","sagVDynamisch","federV","heckhoehe","sagHStatisch","sagHDynamisch","federH"].forEach(id=>{
-    entry[id] = Number(document.getElementById(id).value);
+    fahrwerkslager[moto][id] = Number(document.getElementById(id).value) || 0;
   });
-  const blob = new Blob([JSON.stringify(fahrwerkslager,null,2)],{type:"application/json"});
+
+  const datum = new Date();
+  const jahr = datum.getFullYear();
+  const monat = String(datum.getMonth()+1).padStart(2,'0');
+  const tag = String(datum.getDate()).padStart(2,'0');
+
+  const blob = new Blob([JSON.stringify(fahrwerkslager[moto],null,2)],{type:"application/json"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "fahrwerkslager.json";
+  a.download = `${jahr}-${monat}-${tag}-${moto}.json`;
+  a.click();
+}
+
+// --- MARKDOWN ---
+function downloadProtokoll(){
+  const d = id => document.getElementById(id)?.value || "-";
+  const datum = d("datum");
+  const text = `# Fahrwerksprotokoll ${datum}\n## Motorrad: ${d("motorrad")}\n### Vorderrad\nGabelhöhe: ${d("gabelHoehe")} mm\nSAG statisch: ${d("sagVStatisch")} mm\nSAG dynamisch: ${d("sagVDynamisch")} mm\nFederrate: ${d("federV")} N/mm\n### Hinterrad\nHeckhöhe: ${d("heckhoehe")} mm\nSAG statisch: ${d("sagHStatisch")} mm\nSAG dynamisch: ${d("sagHDynamisch")} mm\nFederrate: ${d("federH")} N/mm`;
+  const blob = new Blob([text], { type: "text/markdown" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${datum}-fahrwerksprotokoll.md`;
   a.click();
 }
 </script>
