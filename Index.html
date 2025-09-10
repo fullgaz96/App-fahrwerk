@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Fahrwerks-App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <h1>🏍️ Fahrwerks-App</h1>
+
+  <nav>
+    <button onclick="showPage('setup')">Fahrwerksprotokoll</button>
+    <button onclick="showPage('tires')">Reifenlager</button>
+  </nav>
+
+  <section id="setup" style="display:block;">
+    <h2>Fahrwerksprotokoll</h2>
+    <form id="setupForm">
+      <label>Motorradmodell: <input type="text" id="bike"></label><br>
+      <label>Rennstrecke: <input type="text" id="track"></label><br>
+      <label>Sag Gabel (mm): <input type="number" id="sagFork"></label><br>
+      <button type="submit">Speichern</button>
+    </form>
+  </section>
+
+  <section id="tires" style="display:none;">
+    <h2>Reifenlager</h2>
+    <ul id="tireList"></ul>
+  </section>
+</body>
+</html>
