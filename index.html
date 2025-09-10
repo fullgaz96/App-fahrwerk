@@ -5,54 +5,17 @@
   <title>🏍️ Fahrwerks-App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body {
-      font-family: -apple-system, sans-serif;
-      background: #121212;
-      color: #f0f0f0;
-      padding: 20px;
-      margin: 0;
-    }
+    body { font-family: -apple-system, sans-serif; background: #121212; color: #f0f0f0; padding: 20px; margin:0; }
     h1 { color: #3a85ff; }
-    fieldset {
-      border: 1px solid #444;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 15px;
-      background: #1e1e1e;
-    }
-    legend { font-weight: bold; color: #3a85ff; }
-    label { display: block; margin: 10px 0 4px; font-weight: bold; }
-    input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #444;
-      border-radius: 6px;
-      background: #2d2d2d;
-      color: #f0f0f0;
-    }
-    .btn {
-      padding: 14px 20px;
-      font-size: 18px;
-      background: #3a85ff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      width: 100%;
-      margin: 15px 0;
-    }
-    .hidden { display: none; }
-    nav button {
-      margin-right: 10px;
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      background: #3a85ff;
-      color: white;
-    }
-    .page { display: none; }
-    .page.active { display: block; }
+    fieldset { border:1px solid #444; border-radius:8px; padding:15px; margin-bottom:15px; background:#1e1e1e; }
+    legend { font-weight:bold; color:#3a85ff; }
+    label { display:block; margin:10px 0 4px; font-weight:bold; }
+    input, select, textarea { width:100%; padding:10px; border:1px solid #444; border-radius:6px; background:#2d2d2d; color:#f0f0f0; }
+    .btn { padding:14px 20px; font-size:18px; background:#3a85ff; color:white; border:none; border-radius:8px; cursor:pointer; width:100%; margin:15px 0; }
+    .hidden { display:none; }
+    nav button { margin-right:10px; padding:10px; border-radius:6px; border:none; cursor:pointer; background:#3a85ff; color:white; }
+    .page { display:none; }
+    .page.active { display:block; }
   </style>
   <script src="app.js" defer></script>
 </head>
@@ -104,34 +67,79 @@
         <input type="date" id="datum" required />
       </fieldset>
 
+      <!-- Wetterbedingungen -->
+      <fieldset>
+        <legend>Bedingungen</legend>
+        <label>Temperatur (°C)</label><input type="number" id="temp" placeholder="26" />
+        <label>Wetter</label>
+        <select id="wetter">
+          <option>sonnig</option>
+          <option>bewölkt</option>
+          <option>regnerisch</option>
+          <option>kühl</option>
+          <option>windig</option>
+        </select>
+        <label>Wind</label><input type="text" id="wind" placeholder="leicht von rechts" />
+      </fieldset>
+
+      <!-- Bestzeit -->
+      <fieldset>
+        <legend>Bestzeit</legend>
+        <div style="display:flex;gap:10px;">
+          <div style="flex:1;"><label>Min</label><input type="number" id="min" value="1" min="0" max="9" /></div>
+          <div style="flex:1;"><label>Sek</label><input type="number" id="sek" value="58" min="0" max="59" /></div>
+          <div style="flex:1;"><label>Zehntel</label><input type="number" id="zehntel" value="4" min="0" max="9" /></div>
+        </div>
+      </fieldset>
+
       <!-- Reifen -->
       <fieldset>
         <legend>Reifen</legend>
         <label>Vorne: Typ</label>
-        <input type="text" id="reifenVorne" />
-        <label>Vorne: Turns/Tage</label>
-        <input type="number" id="turnsVorne" />
-        <label>Vorne: Heizzyklen</label>
-        <input type="number" id="heizVorne" />
+        <select id="reifenVorne"></select>
         <label>Hinten: Typ</label>
-        <input type="text" id="reifenHinten" />
-        <label>Hinten: Turns/Tage</label>
-        <input type="number" id="turnsHinten" />
-        <label>Hinten: Heizzyklen</label>
-        <input type="number" id="heizHinten" />
+        <select id="reifenHinten"></select>
+        <label>Bemerkungen Reifen</label><textarea id="reifenBem"></textarea>
       </fieldset>
 
-      <!-- Gabel / Federbein -->
+      <!-- Vorderrad -->
       <fieldset>
         <legend>Vorderrad (Gabel)</legend>
-        <label>Gabel SAG dynamisch (mm)</label>
-        <input type="number" id="sagVDynamisch" />
+        <label>Gabelhöhe (mm)</label><input type="number" id="gabelHoehe" />
+        <label>Gabel SAG statisch (mm)</label><input type="number" id="sagVStatisch" />
+        <label>Gabel SAG dynamisch (mm)</label><input type="number" id="sagVDynamisch" />
+        <label>Federrate (N/mm)</label><input type="number" id="federV" step="0.1" />
+        <label>Federvorspannung (mm)</label><input type="number" id="vorspannungV" />
+        <label>Druckstufe (Umdr)</label><input type="text" id="druckV" />
+        <label>Zugstufe (Umdr)</label><input type="text" id="zugV" />
+        <label>Bemerkungen Gabel</label><textarea id="gabelBem"></textarea>
       </fieldset>
 
+      <!-- Hinterrad -->
       <fieldset>
         <legend>Hinterrad (Federbein)</legend>
-        <label>Federbein SAG dynamisch (mm)</label>
-        <input type="number" id="sagHDynamisch" />
+        <label>Heckhöhe (mm)</label><input type="number" id="heckhoehe" />
+        <label>Federbein SAG statisch (mm)</label><input type="number" id="sagHStatisch" />
+        <label>Federbein SAG dynamisch (mm)</label><input type="number" id="sagHDynamisch" />
+        <label>Federvorspannung (mm)</label><input type="number" id="vorspannungH" />
+        <label>Federrate (N/mm)</label><input type="number" id="federH" step="0.1" />
+        <label>Druckstufe LS/HS</label><input type="text" id="druckH" />
+        <label>Zugstufe</label><input type="text" id="zugH" />
+        <label>Bemerkungen Federbein</label><textarea id="federBem"></textarea>
+      </fieldset>
+
+      <!-- Antrieb -->
+      <fieldset>
+        <legend>Antrieb</legend>
+        <label>Übersetzung (Zähne)</label><input type="text" id="uebersetzung" placeholder="44/16" />
+        <label>Kettenglieder</label><input type="number" id="glieder" />
+        <label>Bemerkungen Antrieb</label><textarea id="antriebBem"></textarea>
+      </fieldset>
+
+      <!-- Bemerkungen Gesamt -->
+      <fieldset>
+        <legend>Bemerkungen Gesamt</legend>
+        <textarea id="gesamtBem" placeholder="z. B. Vorderrad instabil"></textarea>
       </fieldset>
 
       <button type="button" class="btn" onclick="saveSetup()">💾 Speichern</button>
@@ -143,10 +151,8 @@
   <section id="reifen" class="page">
     <h2>Reifenlager</h2>
     <form id="reifenForm">
-      <label>Name</label>
-      <input type="text" id="reifenName" required>
-      <label>Empfohlener Druck</label>
-      <input type="text" id="reifenDruck" required>
+      <label>Name</label><input type="text" id="reifenName" required>
+      <label>Empfohlener Druck</label><input type="text" id="reifenDruck" required>
       <button type="submit" class="btn">Hinzufügen</button>
     </form>
     <ul id="reifenListe"></ul>
