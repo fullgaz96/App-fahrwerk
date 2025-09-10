@@ -1,174 +1,160 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <title>🏍️ Fahrwerksprotokoll</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>Fahrwerksdaten</title>
   <style>
     body {
-      font-family: -apple-system, sans-serif;
+      font-family: Arial, sans-serif;
       background: #121212;
-      color: #f0f0f0;
+      color: #e0e0e0;
       padding: 20px;
-      margin: 0;
     }
-    h1 { color: #3a85ff; }
-    fieldset {
-      border: 1px solid #444;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 15px;
-      background: #1e1e1e;
-    }
-    legend { font-weight: bold; color: #3a85ff; }
-    label { display: block; margin: 10px 0 4px; font-weight: bold; }
+    label { display: block; margin-top: 10px; }
     input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #444;
-      border-radius: 6px;
-      background: #2d2d2d;
-      color: #f0f0f0;
+      width: 100%; padding: 6px; margin-top: 4px;
+      background: #1e1e1e; color: #fff; border: 1px solid #333;
     }
-    .btn {
-      padding: 14px 20px;
-      font-size: 18px;
-      background: #3a85ff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      width: 100%;
-      margin: 15px 0;
+    button {
+      margin-top: 10px; padding: 10px 15px;
+      background: #333; color: #fff; border: none; cursor: pointer;
     }
-    .hidden { display: none; }
-    .historie { margin-top: 15px; }
-    .historie-entry { border-bottom: 1px solid #444; padding: 8px 0; }
+    button:hover { background: #555; }
+    .historie { margin-top: 30px; padding: 10px; border: 1px solid #444; }
+    .historie-entry { border-bottom: 1px solid #333; margin-bottom: 10px; padding-bottom: 10px; }
   </style>
 </head>
 <body>
-  <h1>🏍️ Fahrwerksprotokoll</h1>
+  <h1>Fahrwerksdaten Protokoll</h1>
 
-  <!-- Motorrad auswählen -->
-  <fieldset>
-    <legend>Motorrad</legend>
-    <label>Motorrad</label>
-    <select id="motorrad">
-      <option value="GSXR">GSXR</option>
-      <option value="GS500E">GS500E</option>
-      <option value="SV650">SV650</option>
-    </select>
-    <label>JSON-Datei laden</label>
-    <input type="file" id="jsonLoader" />
-  </fieldset>
+  <form id="fahrwerkForm">
+    <label>Motorrad:
+      <select id="motorrad" name="motorrad">
+        <option value="GSXR750">GSX-R 750</option>
+        <option value="SV650">SV 650</option>
+        <option value="GS500E">GS 500E</option>
+      </select>
+    </label>
 
-  <!-- Fahrwerksdaten -->
-  <form id="form">
-    <fieldset>
-      <legend>Fahrwerksdaten</legend>
-      <label>Gabelhöhe (mm)</label><input type="number" id="gabelHoehe" />
-      <label>Gabel SAG statisch (mm)</label><input type="number" id="sagVStatisch" />
-      <label>Gabel SAG dynamisch (mm)</label><input type="number" id="sagVDynamisch" />
-      <label>Federrate (N/mm)</label><input type="number" id="federV" step="0.1" />
-      <label>Federvorspannung (mm)</label><input type="number" id="vorspannungV" />
-      <label>Druckstufe (Umdr)</label><input type="text" id="druckV" />
-      <label>Zugstufe (Umdr)</label><input type="text" id="zugV" />
-      <label>Bemerkungen</label><textarea id="bemerkungen"></textarea>
-    </fieldset>
-    <button type="button" class="btn" onclick="speichern()">💾 Speichern in JSON</button>
-    <button type="button" class="btn" onclick="exportMarkdown()">📝 MD-Export</button>
+    <label>Gabelhöhe (mm): <input type="number" id="gabelHoehe"></label>
+    <label>SAG vorne statisch (mm): <input type="number" id="sagVStatisch"></label>
+    <label>SAG vorne dynamisch (mm): <input type="number" id="sagVDynamisch"></label>
+    <label>Federrate vorne (N/mm): <input type="number" id="federV"></label>
+    <label>Vorspannung vorne (mm): <input type="number" id="vorspannungV"></label>
+    <label>Druckstufe vorne (Umdr): <input type="number" id="druckV"></label>
+    <label>Zugstufe vorne (Umdr): <input type="number" id="zugV"></label>
+    <label>Bemerkungen:
+      <textarea id="bemerkungen"></textarea>
+    </label>
+
+    <button type="button" onclick="saveData()">💾 Speichern in JSON</button>
+    <button type="button" onclick="loadFile()">📂 JSON Laden</button>
+    <button type="button" onclick="exportMarkdown()">📝 MD-Export</button>
   </form>
 
-  <!-- Historie -->
-  <fieldset>
-    <legend>Historie</legend>
-    <div id="historieContainer" class="historie"></div>
-  </fieldset>
+  <div class="historie" id="historie">
+    <h2>Historie</h2>
+    <div id="historieList"></div>
+  </div>
 
-<script>
-let fahrwerkData = { historie: [] };
+  <script>
+    let fahrwerkData = { historie: [] };
 
-// Datei laden
-document.getElementById("jsonLoader").addEventListener("change", async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const text = await file.text();
-  try {
-    fahrwerkData = JSON.parse(text);
-    if (!fahrwerkData.historie) fahrwerkData.historie = [];
-    ladeLetztenEintrag();
-    renderHistorie();
-    alert("✅ JSON geladen!");
-  } catch(err) {
-    alert("❌ Fehler beim Laden: " + err);
-  }
-});
+    function saveData() {
+      const entry = {
+        datum: new Date().toLocaleString(),
+        motorrad: document.getElementById("motorrad").value,
+        gabelHoehe: document.getElementById("gabelHoehe").value,
+        sagVStatisch: document.getElementById("sagVStatisch").value,
+        sagVDynamisch: document.getElementById("sagVDynamisch").value,
+        federV: document.getElementById("federV").value,
+        vorspannungV: document.getElementById("vorspannungV").value,
+        druckV: document.getElementById("druckV").value,
+        zugV: document.getElementById("zugV").value,
+        bemerkungen: document.getElementById("bemerkungen").value
+      };
+      fahrwerkData.historie.push(entry);
+      updateHistorie();
 
-// Letzten Eintrag ins Formular laden
-function ladeLetztenEintrag() {
-  if (fahrwerkData.historie.length === 0) return;
-  const last = fahrwerkData.historie[fahrwerkData.historie.length-1];
-  for (let key in last) {
-    const el = document.getElementById(key);
-    if (el) el.value = last[key];
-  }
-}
+      const blob = new Blob([JSON.stringify(fahrwerkData, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${entry.motorrad}_fahrwerk.json`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{document.body.removeChild(a);},100);
+    }
 
-// Speichern neuer Eintrag
-function speichern() {
-  const d = {};
-  ["gabelHoehe","sagVStatisch","sagVDynamisch","federV","vorspannungV","druckV","zugV","bemerkungen"].forEach(id => {
-    d[id] = document.getElementById(id).value;
-  });
-  d.datum = new Date().toLocaleString();
-  fahrwerkData.historie.push(d);
-  renderHistorie();
-  const blob = new Blob([JSON.stringify(fahrwerkData, null, 2)], {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = document.getElementById("motorrad").value + "_fahrwerksdaten.json";
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>{document.body.removeChild(a);},100);
-  alert("✅ Fahrwerksdaten gespeichert!");
-}
+    function loadFile() {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "application/json";
+      input.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = event => {
+          fahrwerkData = JSON.parse(event.target.result);
+          if (fahrwerkData.historie && fahrwerkData.historie.length > 0) {
+            const last = fahrwerkData.historie[fahrwerkData.historie.length-1];
+            document.getElementById("motorrad").value = last.motorrad || "";
+            document.getElementById("gabelHoehe").value = last.gabelHoehe || "";
+            document.getElementById("sagVStatisch").value = last.sagVStatisch || "";
+            document.getElementById("sagVDynamisch").value = last.sagVDynamisch || "";
+            document.getElementById("federV").value = last.federV || "";
+            document.getElementById("vorspannungV").value = last.vorspannungV || "";
+            document.getElementById("druckV").value = last.druckV || "";
+            document.getElementById("zugV").value = last.zugV || "";
+            document.getElementById("bemerkungen").value = last.bemerkungen || "";
+          }
+          updateHistorie();
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
 
-// Historie anzeigen
-function renderHistorie() {
-  const container = document.getElementById("historieContainer");
-  container.innerHTML = "";
-  fahrwerkData.historie.slice().reverse().forEach((entry, i) => {
-    const div = document.createElement("div");
-    div.className = "historie-entry";
-    div.textContent = `${entry.datum} – Gabelhöhe: ${entry.gabelHoehe} mm, SAG V statisch: ${entry.sagVStatisch} mm, Bemerkungen: ${entry.bemerkungen || "-"}`;
-    container.appendChild(div);
-  });
-}
+    function updateHistorie() {
+      const list = document.getElementById("historieList");
+      list.innerHTML = "";
+      fahrwerkData.historie.forEach((e, i) => {
+        const div = document.createElement("div");
+        div.className = "historie-entry";
+        div.innerHTML = `<b>${e.datum}</b> – ${e.motorrad}<br>
+          Gabelhöhe: ${e.gabelHoehe} mm, SAG stat: ${e.sagVStatisch} mm, SAG dyn: ${e.sagVDynamisch} mm<br>
+          Federrate: ${e.federV} N/mm, Vorspannung: ${e.vorspannungV} mm<br>
+          Druckstufe: ${e.druckV} Umdr, Zugstufe: ${e.zugV} Umdr<br>
+          Bemerkungen: ${e.bemerkungen || "-"}
+        `;
+        list.appendChild(div);
+      });
+    }
 
-// MD-Export
-function exportMarkdown() {
-  const motorrad = document.getElementById("motorrad").value;
-  let md = `# Fahrwerksdaten ${motorrad}\n\n`;
-  fahrwerkData.historie.forEach((e, i) => {
-    md += `## Eintrag ${i+1} – ${e.datum}\n`;
-    md += `- Gabelhöhe: ${e.gabelHoehe} mm\n`;
-    md += `- Gabel SAG statisch: ${e.sagVStatisch} mm\n`;
-    md += `- Gabel SAG dynamisch: ${e.sagVDynamisch} mm\n`;
-    md += `- Federrate: ${e.federV} N/mm\n`;
-    md += `- Federvorspannung: ${e.vorspannungV} mm\n`;
-    md += `- Druckstufe: ${e.druckV} Umdr\n`;
-    md += `- Zugstufe: ${e.zugV} Umdr\n`;
-    md += `- Bemerkungen: ${e.bemerkungen || "-"}\n\n`;
-  });
-  const blob = new Blob([md], {type:"text/markdown"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = motorrad + "_fahrwerksdaten.md";
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>{document.body.removeChild(a);},100);
-  alert("✅ Markdown exportiert!");
-}
-</script>
+    function exportMarkdown() {
+      const motorrad = document.getElementById("motorrad").value;
+      let md = `# Fahrwerksdaten ${motorrad}\n\n`;
+
+      fahrwerkData.historie.forEach((e, i) => {
+        md += `## Eintrag ${i+1} – ${e.datum}\n`;
+        md += `- Motorrad: ${e.motorrad}\n`;
+        md += `- Gabelhöhe: ${e.gabelHoehe} mm\n`;
+        md += `- Gabel SAG statisch: ${e.sagVStatisch} mm\n`;
+        md += `- Gabel SAG dynamisch: ${e.sagVDynamisch} mm\n`;
+        md += `- Federrate: ${e.federV} N/mm\n`;
+        md += `- Federvorspannung: ${e.vorspannungV} mm\n`;
+        md += `- Druckstufe: ${e.druckV} Umdr\n`;
+        md += `- Zugstufe: ${e.zugV} Umdr\n`;
+        md += `- Bemerkungen: ${e.bemerkungen || "-"}\n\n`;
+      });
+
+      const blob = new Blob([md], {type:"text/markdown"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${motorrad}_fahrwerksdaten.md`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{document.body.removeChild(a);},100);
+      alert("✅ Markdown exportiert!");
+    }
+  </script>
 </body>
 </html>
