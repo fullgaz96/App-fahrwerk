@@ -1,206 +1,211 @@
 <!DOCTYPE html>
-<html lang="de" class="dark">
+<html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fahrwerksprotokoll & Reifenlager</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>🏍️ Fahrwerksprotokoll & Reifenlager</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; background: #121212; color: #f0f0f0; padding: 20px; margin: 0; }
+    h1 { color: #3a85ff; }
+    fieldset { border: 1px solid #444; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #1e1e1e; }
+    legend { font-weight: bold; color: #3a85ff; }
+    label { display: block; margin: 10px 0 4px; font-weight: bold; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 6px; background: #2d2d2d; color: #f0f0f0; }
+    .btn { padding: 14px 20px; font-size: 18px; background: #3a85ff; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; margin: 15px 0; }
+    .hidden { display: none; }
+    .reifen-item { display:flex; justify-content: space-between; align-items:center; background: #2d2d2d; padding: 6px 10px; border-radius:6px; margin-bottom:5px; }
+    .reifen-buttons button { margin-left:4px; padding:2px 6px; border-radius:4px; border:none; cursor:pointer; }
+    .reifen-buttons button.green{background:#4CAF50;color:white;}
+    .reifen-buttons button.red{background:#f44336;color:white;}
+    .reifen-buttons button.gray{background:#888;color:white;}
+  </style>
 </head>
-<body class="dark:bg-gray-900 dark:text-white p-6">
-  <h1 class="text-2xl font-bold mb-6">Fahrwerksprotokoll & Reifenlager</h1>
+<body>
+<h1>🏍️ Fahrwerksprotokoll & Reifenlager</h1>
 
-  <!-- Fahrwerksprotokoll -->
-  <div class="mb-8 p-4 border rounded dark:border-gray-700">
-    <h2 class="text-lg font-bold mb-4">Fahrwerksprotokoll</h2>
-
-    <div class="grid grid-cols-2 gap-4">
-      <div>
-        <label>Datum:</label>
-        <input id="datum" type="date" class="w-full p-2 rounded bg-gray-800 text-white">
-      </div>
-
-      <div>
-        <label>Motorrad:</label>
-        <select id="motorrad" class="w-full p-2 rounded bg-gray-800 text-white">
-          <option value="GSX-R 750">GSX-R 750</option>
-          <option value="SV 650">SV 650</option>
-          <option value="GS 500E">GS 500E</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Rennstrecke:</label>
-        <select id="rennstrecke" class="w-full p-2 rounded bg-gray-800 text-white">
-          <option value="Oschersleben">Oschersleben</option>
-          <option value="Most">Most</option>
-          <option value="Brno">Brno</option>
-          <option value="Rijeka">Rijeka</option>
-          <option value="Schweizer Dreieck">Schweizer Dreieck</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Session:</label>
-        <input id="session" type="text" class="w-full p-2 rounded bg-gray-800 text-white" placeholder="z.B. Turn 1">
-      </div>
-
-      <div>
-        <label>Reifen vorne:</label>
-        <select id="reifenVorne" class="w-full p-2 rounded bg-gray-800 text-white"></select>
-      </div>
-
-      <div>
-        <label>Reifen hinten:</label>
-        <select id="reifenHinten" class="w-full p-2 rounded bg-gray-800 text-white"></select>
-      </div>
-
-      <div>
-        <label>Federbein:</label>
-        <input id="federbein" type="text" class="w-full p-2 rounded bg-gray-800 text-white">
-      </div>
-
-      <div>
-        <label>Gabel:</label>
-        <input id="gabel" type="text" class="w-full p-2 rounded bg-gray-800 text-white">
-      </div>
-
-      <div>
-        <label>Übersetzung:</label>
-        <input id="uebersetzung" type="text" class="w-full p-2 rounded bg-gray-800 text-white">
-      </div>
-
-      <div>
-        <label>Kettenspannung:</label>
-        <input id="kettenspannung" type="text" class="w-full p-2 rounded bg-gray-800 text-white">
-      </div>
-
-      <div class="col-span-2">
-        <label>Notizen:</label>
-        <textarea id="notizen" class="w-full p-2 rounded bg-gray-800 text-white"></textarea>
-      </div>
+<!-- Fahrwerksprotokoll -->
+<form id="fahrwerkForm">
+  <fieldset>
+    <legend>Grunddaten</legend>
+    <label>Motorrad</label>
+    <select id="motorrad" required>
+      <option value="GSX-R 750">GSX-R 750</option>
+      <option value="SV 650">SV 650</option>
+      <option value="GS 500E">GS 500E</option>
+    </select>
+    <label>Strecke</label>
+    <select id="strecke" required>
+      <option value="">-- wählen --</option>
+      <option value="OSL">Oschersleben</option>
+      <option value="SAC">Sachsenring</option>
+      <option value="STC">Spreewaldring</option>
+      <option value="GD">Gros Doelln</option>
+      <option value="MST">Most</option>
+      <option value="HARZ">Harzring</option>
+      <option value="HDBR">Heidbergring</option>
+      <option value="BRN">Brünn</option>
+      <option value="LSR">Lausitzring</option>
+      <option value="TPZ">Tor Poznań</option>
+      <option value="custom">nicht dabei</option>
+    </select>
+    <div id="customContainer" class="hidden">
+      <label>Strecke (manuell)</label>
+      <input type="text" id="streckeCustom" placeholder="z. B. Hockenheim" />
     </div>
+    <label>Session</label>
+    <input type="text" id="session" placeholder="z.B. TR1" />
+    <label>Datum</label>
+    <input type="date" id="datum" required />
+  </fieldset>
 
-    <button onclick="generateMarkdown()" class="mt-4 bg-green-500 text-white px-4 py-2 rounded">Markdown exportieren</button>
+  <fieldset>
+    <legend>Reifen</legend>
+    <label>Vorne:</label>
+    <select id="reifenVorne"></select>
+    <label>Hinten:</label>
+    <select id="reifenHinten"></select>
+  </fieldset>
+
+  <fieldset>
+    <legend>Fahrwerk</legend>
+    <label>Gabel</label><input type="text" id="gabel">
+    <label>Federbein</label><input type="text" id="federbein">
+    <label>Übersetzung</label><input type="text" id="uebersetzung">
+    <label>Kettenspannung</label><input type="text" id="kettenspannung">
+  </fieldset>
+
+  <fieldset>
+    <legend>Notizen</legend>
+    <textarea id="notizen"></textarea>
+  </fieldset>
+
+  <button type="button" class="btn" onclick="generateMarkdown()">Markdown exportieren</button>
+</form>
+
+<!-- Reifenlager -->
+<div class="p-4 border rounded dark:border-gray-700 mt-6">
+  <h2 class="text-lg font-bold mb-4">Reifenlager</h2>
+
+  <div class="space-x-2 mb-4">
+    <button onclick="saveReifenlager()" class="bg-blue-500 text-white px-4 py-2 rounded">Reifenlager speichern</button>
+    <input type="file" id="reifenlagerFile" accept=".json" onchange="loadReifenlager(event)" class="bg-gray-700 text-white px-4 py-2 rounded">
   </div>
 
-  <!-- Reifenlager -->
-  <div class="p-4 border rounded dark:border-gray-700">
-    <h2 class="text-lg font-bold mb-4">Reifenlager</h2>
-
-    <div class="space-x-2 mb-4">
-      <button onclick="saveReifenlager()" class="bg-blue-500 text-white px-4 py-2 rounded">Reifenlager speichern</button>
-      <input type="file" id="reifenlagerFile" accept=".json" onchange="loadReifenlager(event)" class="bg-gray-700 text-white px-4 py-2 rounded">
-    </div>
-
-    <div id="reifenlagerList" class="space-y-2"></div>
+  <div class="flex gap-2 mb-4">
+    <input type="text" id="neuerReifenName" placeholder="Reifenname" class="flex-1 p-2 rounded bg-gray-800 text-white">
+    <button onclick="addReifen()" class="bg-green-500 text-white px-4 py-2 rounded">+ Reifen</button>
   </div>
 
-  <script>
-    let reifenlager = [];
+  <div id="reifenlagerList"></div>
+</div>
 
-    // Markdown erzeugen
-    function generateMarkdown() {
-      const datum = document.getElementById("datum").value;
-      const motorrad = document.getElementById("motorrad").value;
-      const rennstrecke = document.getElementById("rennstrecke").value;
-      const session = document.getElementById("session").value;
-      const reifenVorne = document.getElementById("reifenVorne").value;
-      const reifenHinten = document.getElementById("reifenHinten").value;
-      const federbein = document.getElementById("federbein").value;
-      const gabel = document.getElementById("gabel").value;
-      const uebersetzung = document.getElementById("uebersetzung").value;
-      const kettenspannung = document.getElementById("kettenspannung").value;
-      const notizen = document.getElementById("notizen").value;
+<script>
+document.getElementById("datum").valueAsDate = new Date();
+document.getElementById("strecke").addEventListener("change", () => {
+  document.getElementById("customContainer").classList.toggle("hidden", document.getElementById("strecke").value !== "custom");
+});
 
-      const md = `# Fahrwerksprotokoll
-- Datum: ${datum}
-- Motorrad: ${motorrad}
-- Rennstrecke: ${rennstrecke}
-- Session: ${session}
-- Reifen vorne: ${reifenVorne}
-- Reifen hinten: ${reifenHinten}
-- Federbein: ${federbein}
-- Gabel: ${gabel}
-- Übersetzung: ${uebersetzung}
-- Kettenspannung: ${kettenspannung}
+// Reifenlager
+let reifenlager = [];
 
-## Notizen
-${notizen}`;
+function addReifen() {
+  const name = document.getElementById("neuerReifenName").value.trim();
+  if(!name) return;
+  reifenlager.push({name, turns:0, heizzyklen:0});
+  document.getElementById("neuerReifenName").value = "";
+  renderReifenlager();
+}
 
-      const filename = `${datum}_${motorrad}_${rennstrecke}_${session}.md`;
-      const blob = new Blob([md], { type: "text/markdown" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      link.click();
-    }
+function removeReifen(index) {
+  if(confirm(`Reifen "${reifenlager[index].name}" wirklich entfernen?`)) {
+    reifenlager.splice(index,1);
+    renderReifenlager();
+  }
+}
 
-    // Reifenlager rendern
-    function renderReifenlager() {
-      const list = document.getElementById("reifenlagerList");
-      list.innerHTML = "";
-      const reifenVorne = document.getElementById("reifenVorne");
-      const reifenHinten = document.getElementById("reifenHinten");
+function updateReifen(index, field, diff){
+  reifenlager[index][field] = Math.max(0, reifenlager[index][field]+diff);
+  renderReifenlager();
+}
 
-      reifenVorne.innerHTML = "";
-      reifenHinten.innerHTML = "";
+function renderReifenlager(){
+  const list = document.getElementById("reifenlagerList");
+  const reifenVorne = document.getElementById("reifenVorne");
+  const reifenHinten = document.getElementById("reifenHinten");
+  list.innerHTML = "";
+  reifenVorne.innerHTML = "";
+  reifenHinten.innerHTML = "";
 
-      reifenlager.forEach((reifen, index) => {
-        const div = document.createElement("div");
-        div.className = "flex items-center justify-between bg-gray-800 p-2 rounded";
+  reifenlager.forEach((reifen,index)=>{
+    const div = document.createElement("div");
+    div.className="reifen-item";
+    div.innerHTML = `
+      <span>${reifen.name} | Turns: ${reifen.turns} | Heizzyklen: ${reifen.heizzyklen}</span>
+      <div class="reifen-buttons">
+        <button class="green" onclick="updateReifen(${index},'turns',1)">+ Turn</button>
+        <button class="red" onclick="updateReifen(${index},'turns',-1)">- Turn</button>
+        <button class="green" onclick="updateReifen(${index},'heizzyklen',1)">+ Heiz</button>
+        <button class="red" onclick="updateReifen(${index},'heizzyklen',-1)">- Heiz</button>
+        <button class="gray" onclick="removeReifen(${index})">Entfernen</button>
+      </div>
+    `;
+    list.appendChild(div);
 
-        div.innerHTML = `
-          <span>${reifen.name} | Turns: ${reifen.turns} | Heizzyklen: ${reifen.heizzyklen}</span>
-          <div>
-            <button onclick="updateReifen(${index}, 'turns', 1)" class="bg-green-500 px-2 py-1 rounded">+ Turn</button>
-            <button onclick="updateReifen(${index}, 'turns', -1)" class="bg-red-500 px-2 py-1 rounded">- Turn</button>
-            <button onclick="updateReifen(${index}, 'heizzyklen', 1)" class="bg-green-500 px-2 py-1 rounded">+ Heiz</button>
-            <button onclick="updateReifen(${index}, 'heizzyklen', -1)" class="bg-red-500 px-2 py-1 rounded">- Heiz</button>
-          </div>
-        `;
-        list.appendChild(div);
+    const opt1 = document.createElement("option"); opt1.value=reifen.name; opt1.textContent=reifen.name; reifenVorne.appendChild(opt1);
+    const opt2 = document.createElement("option"); opt2.value=reifen.name; opt2.textContent=reifen.name; reifenHinten.appendChild(opt2);
+  });
+}
 
-        // Dropdowns befüllen
-        const opt1 = document.createElement("option");
-        opt1.value = reifen.name;
-        opt1.textContent = reifen.name;
-        reifenVorne.appendChild(opt1);
+function saveReifenlager(){
+  const blob = new Blob([JSON.stringify(reifenlager,null,2)], {type:"application/json"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download="reifenlager.json";
+  link.click();
+}
 
-        const opt2 = document.createElement("option");
-        opt2.value = reifen.name;
-        opt2.textContent = reifen.name;
-        reifenHinten.appendChild(opt2);
-      });
-    }
+function loadReifenlager(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{reifenlager = JSON.parse(e.target.result);}catch{alert("Fehler beim Laden"); return;}
+    renderReifenlager();
+  };
+  reader.readAsText(file);
+}
 
-    function updateReifen(index, field, diff) {
-      reifenlager[index][field] = Math.max(0, reifenlager[index][field] + diff);
-      renderReifenlager();
-    }
+// Markdown export
+function generateMarkdown(){
+  const f = id=>document.getElementById(id)?.value||"-";
+  const text = `## Fahrwerksprotokoll
+Datum: ${f("datum")}
+Motorrad: ${f("motorrad")}
+Strecke: ${f("strecke")}
+Session: ${f("session")}
 
-    function saveReifenlager() {
-      const blob = new Blob([JSON.stringify(reifenlager, null, 2)], { type: "application/json" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "reifenlager.json";
-      link.click();
-    }
+### Reifen
+Vorne: ${f("reifenVorne")}
+Hinten: ${f("reifenHinten")}
 
-    function loadReifenlager(event) {
-      const file = event.target.files[0];
-      if (!file) return;
+### Fahrwerk
+Gabel: ${f("gabel")}
+Federbein: ${f("federbein")}
+Übersetzung: ${f("uebersetzung")}
+Kettenspannung: ${f("kettenspannung")}
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          reifenlager = JSON.parse(e.target.result);
-          renderReifenlager();
-        } catch (err) {
-          alert("Fehler beim Laden der Reifenlager-Datei!");
-        }
-      };
-      reader.readAsText(file);
-    }
-  </script>
+### Notizen
+${f("notizen")}
+`.trim();
+
+  const blob = new Blob([text],{type:"text/markdown"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  const d = new Date();
+  const dateiname = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}_${f("motorrad")}_${f("strecke")}_${f("session")}.md`;
+  link.download = dateiname;
+  link.click();
+}
+</script>
 </body>
 </html>
