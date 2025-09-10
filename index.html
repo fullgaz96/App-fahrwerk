@@ -1,30 +1,48 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🏍️ Fahrwerksprotokoll & Reifenlager</title>
-  <style>
-    body { font-family: -apple-system, sans-serif; background: #121212; color: #f0f0f0; padding: 20px; margin: 0; }
-    h1 { color: #3a85ff; }
-    fieldset { border: 1px solid #444; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #1e1e1e; }
-    legend { font-weight: bold; color: #3a85ff; }
-    label { display: block; margin: 10px 0 4px; font-weight: bold; }
-    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 6px; background: #2d2d2d; color: #f0f0f0; }
-    .btn { padding: 14px 20px; font-size: 18px; background: #3a85ff; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; margin: 15px 0; }
-    .hidden { display: none; }
-    .reifen-item { display:flex; justify-content: space-between; align-items:center; background: #2d2d2d; padding: 6px 10px; border-radius:6px; margin-bottom:5px; }
-    .reifen-buttons button { margin-left:4px; padding:2px 6px; border-radius:4px; border:none; cursor:pointer; }
-    .reifen-buttons button.green{background:#4CAF50;color:white;}
-    .reifen-buttons button.red{background:#f44336;color:white;}
-    .reifen-buttons button.gray{background:#888;color:white;}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🏍️ Fahrwerksprotokoll & Reifenlager</title>
+<style>
+  body { font-family: -apple-system, sans-serif; background: #121212; color: #f0f0f0; padding: 20px; margin: 0; }
+  h1, h2 { color: #3a85ff; }
+  fieldset { border: 1px solid #444; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #1e1e1e; }
+  legend { font-weight: bold; color: #3a85ff; }
+  label { display: block; margin: 10px 0 4px; font-weight: bold; }
+  input, select, textarea { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 6px; background: #2d2d2d; color: #f0f0f0; }
+  .btn { padding: 14px 20px; font-size: 18px; background: #3a85ff; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; margin: 15px 0; }
+  .hidden { display: none; }
+  .reifen-item { display:flex; justify-content: space-between; align-items:center; background: #2d2d2d; padding: 6px 10px; border-radius:6px; margin-bottom:5px; }
+  .reifen-buttons button { margin-left:4px; padding:2px 6px; border-radius:4px; border:none; cursor:pointer; }
+  .reifen-buttons button.green{background:#4CAF50;color:white;}
+  .reifen-buttons button.red{background:#f44336;color:white;}
+  .reifen-buttons button.gray{background:#888;color:white;}
+</style>
 </head>
 <body>
-<h1>🏍️ Fahrwerksprotokoll & Reifenlager</h1>
+<h1>🏍️ Reifenlager & Fahrwerksprotokoll</h1>
+
+<!-- Reifenlager -->
+<div class="p-4 border rounded dark:border-gray-700 mb-6">
+  <h2>Reifenlager</h2>
+
+  <div class="space-x-2 mb-4">
+    <button onclick="saveReifenlager()" class="bg-blue-500 text-white px-4 py-2 rounded">Reifenlager speichern</button>
+    <input type="file" id="reifenlagerFile" accept=".json" onchange="loadReifenlager(event)" class="bg-gray-700 text-white px-4 py-2 rounded">
+  </div>
+
+  <div class="flex gap-2 mb-4">
+    <input type="text" id="neuerReifenName" placeholder="Reifenname" class="flex-1 p-2 rounded bg-gray-800 text-white">
+    <button onclick="addReifen()" class="bg-green-500 text-white px-4 py-2 rounded">+ Reifen</button>
+  </div>
+
+  <div id="reifenlagerList"></div>
+</div>
 
 <!-- Fahrwerksprotokoll -->
 <form id="fahrwerkForm">
+  <!-- Grunddaten -->
   <fieldset>
     <legend>Grunddaten</legend>
     <label>Motorrad</label>
@@ -53,117 +71,156 @@
       <input type="text" id="streckeCustom" placeholder="z. B. Hockenheim" />
     </div>
     <label>Session</label>
-    <input type="text" id="session" placeholder="z.B. TR1" />
+    <select id="session" required>
+      <option value="TR">Training</option>
+      <option value="Q">Qualifikation</option>
+      <option value="R">Rennen</option>
+      <option value="I">Instruktion</option>
+    </select>
     <label>Datum</label>
     <input type="date" id="datum" required />
   </fieldset>
 
+  <!-- Bedingungen -->
+  <fieldset>
+    <legend>Bedingungen</legend>
+    <label>Temperatur (°C)</label>
+    <input type="number" id="temp" placeholder="26" />
+    <label>Wetter</label>
+    <select id="wetter">
+      <option>sonnig</option>
+      <option>bewölkt</option>
+      <option>regnerisch</option>
+      <option>kühl</option>
+      <option>windig</option>
+    </select>
+    <label>Wind</label>
+    <input type="text" id="wind" placeholder="leicht von rechts" />
+  </fieldset>
+
+  <!-- Bestzeit -->
+  <fieldset>
+    <legend>Bestzeit</legend>
+    <div style="display:flex;gap:10px;">
+      <div style="flex:1;"><label>Min</label><input type="number" id="min" value="1" min="0" max="9" /></div>
+      <div style="flex:1;"><label>Sek</label><input type="number" id="sek" value="58" min="0" max="59" /></div>
+      <div style="flex:1;"><label>Zehntel</label><input type="number" id="zehntel" value="4" min="0" max="9" /></div>
+    </div>
+  </fieldset>
+
+  <!-- Reifen -->
   <fieldset>
     <legend>Reifen</legend>
-    <label>Vorne:</label>
+    <label>Vorne</label>
     <select id="reifenVorne"></select>
-    <label>Hinten:</label>
+    <label>Hinten</label>
     <select id="reifenHinten"></select>
+    <label>Bemerkungen Reifen</label>
+    <textarea id="reifenBem"></textarea>
   </fieldset>
 
+  <!-- Vorderrad (Gabel) -->
   <fieldset>
-    <legend>Fahrwerk</legend>
-    <label>Gabel</label><input type="text" id="gabel">
-    <label>Federbein</label><input type="text" id="federbein">
-    <label>Übersetzung</label><input type="text" id="uebersetzung">
-    <label>Kettenspannung</label><input type="text" id="kettenspannung">
+    <legend>Vorderrad (Gabel)</legend>
+    <label>Gabelhöhe (mm)</label><input type="number" id="gabelHoehe" />
+    <label>Gabel SAG statisch (mm)</label><input type="number" id="sagVStatisch" />
+    <label>Gabel SAG dynamisch (mm)</label><input type="number" id="sagVDynamisch" />
+    <label>Federrate (N/mm)</label><input type="number" id="federV" step="0.1" />
+    <label>Federvorspannung (mm)</label><input type="number" id="vorspannungV" />
+    <label>Druckstufe (Umdr)</label><input type="text" id="druckV" />
+    <label>Zugstufe (Umdr)</label><input type="text" id="zugV" />
+    <label>Bemerkungen Gabel</label><textarea id="gabelBem"></textarea>
   </fieldset>
 
+  <!-- Hinterrad (Federbein) -->
   <fieldset>
-    <legend>Notizen</legend>
-    <textarea id="notizen"></textarea>
+    <legend>Hinterrad (Federbein)</legend>
+    <label>Heckhöhe (mm)</label><input type="number" id="heckhoehe" />
+    <label>Federbein SAG statisch (mm)</label><input type="number" id="sagHStatisch" />
+    <label>Federbein SAG dynamisch (mm)</label><input type="number" id="sagHDynamisch" />
+    <label>Federvorspannung (mm)</label><input type="number" id="vorspannungH" />
+    <label>Federrate (N/mm)</label><input type="number" id="federH" step="0.1" />
+    <label>Druckstufe LS/HS</label><input type="text" id="druckH" />
+    <label>Zugstufe</label><input type="text" id="zugH" />
+    <label>Bemerkungen Federbein</label><textarea id="federBem"></textarea>
   </fieldset>
 
-  <button type="button" class="btn" onclick="generateMarkdown()">Markdown exportieren</button>
+  <!-- Antrieb -->
+  <fieldset>
+    <legend>Antrieb</legend>
+    <label>Übersetzung (Zähne)</label><input type="text" id="uebersetzung" placeholder="44/16" />
+    <label>Kettenglieder</label><input type="number" id="glieder" />
+    <label>Bemerkungen Antrieb</label><textarea id="antriebBem"></textarea>
+  </fieldset>
+
+  <!-- Bemerkungen Gesamt -->
+  <fieldset>
+    <legend>Bemerkungen Gesamt</legend>
+    <textarea id="gesamtBem" placeholder="z. B. Vorderrad instabil"></textarea>
+  </fieldset>
+
+  <button type="button" class="btn" onclick="downloadProtokoll()">📝 Datei erstellen</button>
 </form>
 
-<!-- Reifenlager -->
-<div class="p-4 border rounded dark:border-gray-700 mt-6">
-  <h2 class="text-lg font-bold mb-4">Reifenlager</h2>
-
-  <div class="space-x-2 mb-4">
-    <button onclick="saveReifenlager()" class="bg-blue-500 text-white px-4 py-2 rounded">Reifenlager speichern</button>
-    <input type="file" id="reifenlagerFile" accept=".json" onchange="loadReifenlager(event)" class="bg-gray-700 text-white px-4 py-2 rounded">
-  </div>
-
-  <div class="flex gap-2 mb-4">
-    <input type="text" id="neuerReifenName" placeholder="Reifenname" class="flex-1 p-2 rounded bg-gray-800 text-white">
-    <button onclick="addReifen()" class="bg-green-500 text-white px-4 py-2 rounded">+ Reifen</button>
-  </div>
-
-  <div id="reifenlagerList"></div>
-</div>
-
 <script>
+let reifenlager = [];
+
 document.getElementById("datum").valueAsDate = new Date();
+
 document.getElementById("strecke").addEventListener("change", () => {
   document.getElementById("customContainer").classList.toggle("hidden", document.getElementById("strecke").value !== "custom");
 });
 
-// Reifenlager
-let reifenlager = [];
-
-function addReifen() {
-  const name = document.getElementById("neuerReifenName").value.trim();
-  if(!name) return;
-  reifenlager.push({name, turns:0, heizzyklen:0});
-  document.getElementById("neuerReifenName").value = "";
-  renderReifenlager();
-}
-
-function removeReifen(index) {
-  if(confirm(`Reifen "${reifenlager[index].name}" wirklich entfernen?`)) {
-    reifenlager.splice(index,1);
-    renderReifenlager();
-  }
-}
-
-function updateReifen(index, field, diff){
-  reifenlager[index][field] = Math.max(0, reifenlager[index][field]+diff);
-  renderReifenlager();
-}
-
 function renderReifenlager(){
   const list = document.getElementById("reifenlagerList");
-  const reifenVorne = document.getElementById("reifenVorne");
-  const reifenHinten = document.getElementById("reifenHinten");
   list.innerHTML = "";
-  reifenVorne.innerHTML = "";
-  reifenHinten.innerHTML = "";
-
-  reifenlager.forEach((reifen,index)=>{
+  reifenlager.forEach((r, i)=>{
     const div = document.createElement("div");
-    div.className="reifen-item";
-    div.innerHTML = `
-      <span>${reifen.name} | Turns: ${reifen.turns} | Heizzyklen: ${reifen.heizzyklen}</span>
-      <div class="reifen-buttons">
-        <button class="green" onclick="updateReifen(${index},'turns',1)">+ Turn</button>
-        <button class="red" onclick="updateReifen(${index},'turns',-1)">- Turn</button>
-        <button class="green" onclick="updateReifen(${index},'heizzyklen',1)">+ Heiz</button>
-        <button class="red" onclick="updateReifen(${index},'heizzyklen',-1)">- Heiz</button>
-        <button class="gray" onclick="removeReifen(${index})">Entfernen</button>
-      </div>
-    `;
+    div.className = "reifen-item";
+    div.innerHTML = `<span>${r.name} | Turns: ${r.turns} | Heizzyklen: ${r.heizzyklen}</span>
+      <span class="reifen-buttons">
+        <button class="green" onclick="updateReifen(${i},1)">+ Turns</button>
+        <button class="green" onclick="updateHeiz(${i},1)">+ Heiz</button>
+        <button class="red" onclick="updateReifen(${i},-1)">- Turns</button>
+        <button class="red" onclick="updateHeiz(${i},-1)">- Heiz</button>
+        <button class="gray" onclick="removeReifen(${i})">✖</button>
+      </span>`;
     list.appendChild(div);
+  });
+  updateDropdowns();
+}
 
-    const opt1 = document.createElement("option"); opt1.value=reifen.name; opt1.textContent=reifen.name; reifenVorne.appendChild(opt1);
-    const opt2 = document.createElement("option"); opt2.value=reifen.name; opt2.textContent=reifen.name; reifenHinten.appendChild(opt2);
+function updateDropdowns(){
+  const vorne = document.getElementById("reifenVorne");
+  const hinten = document.getElementById("reifenHinten");
+  [vorne,hinten].forEach(sel=>{
+    sel.innerHTML = "";
+    reifenlager.forEach(r=>{
+      const opt = document.createElement("option");
+      opt.value = r.name;
+      opt.textContent = r.name;
+      sel.appendChild(opt);
+    });
   });
 }
 
-function saveReifenlager(){
-  const blob = new Blob([JSON.stringify(reifenlager,null,2)], {type:"application/json"});
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download="reifenlager.json";
-  link.click();
+function updateReifen(i,val){ reifenlager[i].turns = Math.max(0,reifenlager[i].turns+val); renderReifenlager(); }
+function updateHeiz(i,val){ reifenlager[i].heizzyklen = Math.max(0,reifenlager[i].heizzyklen+val); renderReifenlager(); }
+function addReifen(){
+  const name = document.getElementById("neuerReifenName").value.trim();
+  if(!name) return;
+  reifenlager.push({name, turns:0, heizzyklen:0});
+  document.getElementById("neuerReifenName").value="";
+  renderReifenlager();
 }
-
+function removeReifen(i){ reifenlager.splice(i,1); renderReifenlager(); }
+function saveReifenlager(){
+  const blob = new Blob([JSON.stringify(reifenlager,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "reifenlager.json";
+  a.click();
+}
 function loadReifenlager(event){
   const file = event.target.files[0];
   if(!file) return;
@@ -175,35 +232,65 @@ function loadReifenlager(event){
   reader.readAsText(file);
 }
 
-// Markdown export
-function generateMarkdown(){
+function downloadProtokoll(){
   const f = id=>document.getElementById(id)?.value||"-";
+  const datumObj = new Date(f("datum"));
+  const datum = `${datumObj.getDate().toString().padStart(2,"0")}.${(datumObj.getMonth()+1).toString().padStart(2,"0")}.${datumObj.getFullYear().toString().slice(-2)}`;
+  const basisname = `${datumObj.getFullYear()}-${(datumObj.getMonth()+1).toString().padStart(2,"0")}-${datumObj.getDate().toString().padStart(2,"0")}_${f("motorrad")}_${f("strecke")}_${f("session")}`;
+
   const text = `## Fahrwerksprotokoll
-Datum: ${f("datum")}
+Datum: ${datum}
 Motorrad: ${f("motorrad")}
 Strecke: ${f("strecke")}
 Session: ${f("session")}
 
+### Bedingungen
+Temperatur: ${f("temp")} °C
+Wetter: ${f("wetter")}
+Wind: ${f("wind") || "-"}
+
+### Bestzeit
+Min: ${f("min")}
+Sek: ${f("sek")}
+Zehntel: ${f("zehntel")}
+
 ### Reifen
 Vorne: ${f("reifenVorne")}
 Hinten: ${f("reifenHinten")}
+Bemerkungen Reifen: ${f("reifenBem") || "-"}
 
-### Fahrwerk
-Gabel: ${f("gabel")}
-Federbein: ${f("federbein")}
+### Vorderrad (Gabel)
+Gabelhöhe: ${f("gabelHoehe")}
+SAG statisch: ${f("sagVStatisch")}
+SAG dynamisch: ${f("sagVDynamisch")}
+Federrate: ${f("federV")}
+Federvorspannung: ${f("vorspannungV")}
+Druckstufe: ${f("druckV")}
+Zugstufe: ${f("zugV")}
+Bemerkungen: ${f("gabelBem") || "-"}
+
+### Hinterrad (Federbein)
+Heckhöhe: ${f("heckhoehe")}
+SAG statisch: ${f("sagHStatisch")}
+SAG dynamisch: ${f("sagHDynamisch")}
+Federvorspannung: ${f("vorspannungH")}
+Federrate: ${f("federH")}
+Druckstufe LS/HS: ${f("druckH")}
+Zugstufe: ${f("zugH")}
+Bemerkungen: ${f("federBem") || "-"}
+
+### Antrieb
 Übersetzung: ${f("uebersetzung")}
-Kettenspannung: ${f("kettenspannung")}
+Kettenglieder: ${f("glieder")}
+Bemerkungen: ${f("antriebBem") || "-"}
 
-### Notizen
-${f("notizen")}
-`.trim();
+### Bemerkungen Gesamt
+${f("gesamtBem") || "-"}`.trim();
 
   const blob = new Blob([text],{type:"text/markdown"});
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  const d = new Date();
-  const dateiname = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}_${f("motorrad")}_${f("strecke")}_${f("session")}.md`;
-  link.download = dateiname;
+  link.download = `${basisname}.md`;
   link.click();
 }
 </script>
