@@ -1,110 +1,95 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>🏍️ Fahrwerksprotokoll & Reifenlager</title>
-<style>
-  body { font-family: -apple-system, sans-serif; background: #121212; color: #f0f0f0; padding: 20px; margin: 0; }
-  h1, h2 { color: #3a85ff; }
-  fieldset { border: 1px solid #444; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #1e1e1e; }
-  legend { font-weight: bold; color: #3a85ff; }
-  label { display: block; margin: 10px 0 4px; font-weight: bold; }
-  input, select, textarea { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 6px; background: #2d2d2d; color: #f0f0f0; }
-  .btn { padding: 14px 20px; font-size: 18px; background: #3a85ff; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; margin: 15px 0; }
-  .hidden { display: none; }
-  .reifen-item { display:flex; justify-content: space-between; align-items:center; background: #2d2d2d; padding: 6px 10px; border-radius:6px; margin-bottom:5px; }
-  .reifen-buttons button { margin-left:4px; padding:2px 6px; border-radius:4px; border:none; cursor:pointer; }
-  .reifen-buttons button.green{background:#4CAF50;color:white;}
-  .reifen-buttons button.red{background:#f44336;color:white;}
-  .reifen-buttons button.gray{background:#888;color:white;}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🏍️ Fahrwerks-App v2.8</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; background:#121212; color:#f0f0f0; margin:0; }
+    header { display:flex; background:#1e1e1e; border-bottom:1px solid #333; }
+    header button { flex:1; padding:14px; font-size:16px; background:#1e1e1e; color:#f0f0f0; border:none; cursor:pointer; }
+    header button.active { background:#3a85ff; font-weight:bold; }
+    .page { display:none; padding:20px; }
+    .page h2 { color:#3a85ff; margin-top:0; }
+    fieldset { border:1px solid #333; border-radius:8px; padding:15px; margin-bottom:20px; background:#1e1e1e; }
+    legend { color:#3a85ff; font-weight:bold; padding:0 6px; }
+    label { display:block; margin-top:10px; margin-bottom:4px; font-weight:bold; }
+    input, select, textarea { width:100%; padding:8px; border:1px solid #444; border-radius:6px; background:#2d2d2d; color:#f0f0f0; }
+    textarea { min-height:60px; }
+    .btn { padding:8px 14px; font-size:14px; background:#3a85ff; color:white; border:none; border-radius:6px; cursor:pointer; margin:4px 4px 4px 0; }
+    .hist-entry { border-bottom:1px solid #333; padding:10px 0; }
+    .hist-meta { font-weight:bold; margin-bottom:4px; }
+    .hist-details { margin:6px 0 10px 0; padding:8px; background:#2d2d2d; border-radius:6px; }
+    .reifen-item { display:flex; justify-content:space-between; align-items:center; background:#2d2d2d; padding:6px 10px; border-radius:6px; margin-bottom:5px; }
+    .reifen-buttons button { margin-left:4px; padding:2px 6px; border-radius:4px; border:none; cursor:pointer; }
+    .reifen-buttons button.green{background:#4CAF50;color:white;}
+    .reifen-buttons button.red{background:#f44336;color:white;}
+    .reifen-buttons button.gray{background:#888;color:white;}
+    .row { display:flex; gap:6px; align-items:center; } /* V2.8 Änderung: für Druckstufe LS/HS nebeneinander */
+  </style>
 </head>
 <body>
-<h1>🏍️ Reifenlager & Fahrwerksprotokoll</h1>
+<header>
+  <button class="active" onclick="showPage('fahrwerk', this)">Fahrwerksdaten</button>
+  <button onclick="showPage('historie', this)">Historie</button>
+  <button onclick="showPage('reifenlager', this)">Reifenlager</button>
+  <button onclick="showPage('luftdruck', this)">Luftdrucktabelle</button>
 
-<!-- Reifenlager -->
-<div class="p-4 border rounded dark:border-gray-700 mb-6">
-  <h2>Reifenlager</h2>
+</header>
 
-  <div class="space-x-2 mb-4">
-    <button onclick="saveReifenlager()" class="bg-blue-500 text-white px-4 py-2 rounded">Reifenlager speichern</button>
-    <input type="file" id="reifenlagerFile" accept=".json" onchange="loadReifenlager(event)" class="bg-gray-700 text-white px-4 py-2 rounded">
+<!-- Fahrwerk -->
+<div id="fahrwerk" class="page" style="display:block;">
+  <h2>Fahrwerksdaten</h2>
+  <div style="margin-bottom:15px;">
+    <button class="btn" onclick="loadSetup()">📂 Setup laden</button>
+    <button class="btn" onclick="document.getElementById('reifenlagerFileTop').click()">📂 Reifenlager laden</button>
+    <input type="file" id="reifenlagerFileTop" accept=".json" onchange="loadReifenlager(event)" style="display:none;" />
   </div>
 
-  <div class="flex gap-2 mb-4">
-    <input type="text" id="neuerReifenName" placeholder="Reifenname" class="flex-1 p-2 rounded bg-gray-800 text-white">
-    <button onclick="addReifen()" class="bg-green-500 text-white px-4 py-2 rounded">+ Reifen</button>
-  </div>
-
-  <div id="reifenlagerList"></div>
-</div>
-
-<!-- Fahrwerksprotokoll -->
-<form id="fahrwerkForm">
   <!-- Grunddaten -->
   <fieldset>
     <legend>Grunddaten</legend>
     <label>Motorrad</label>
-    <select id="motorrad" required>
+    <select id="motorrad">
       <option value="GSX-R 750">GSX-R 750</option>
       <option value="SV 650">SV 650</option>
       <option value="GS 500E">GS 500E</option>
     </select>
-    <label>Strecke</label>
-    <select id="strecke" required>
+
+    <label>Rennstrecke</label>
+    <select id="strecke">
       <option value="">-- wählen --</option>
       <option value="OSL">Oschersleben</option>
       <option value="SAC">Sachsenring</option>
       <option value="STC">Spreewaldring</option>
-      <option value="GD">Gros Doelln</option>
+      <option value="GD">Groß Dölln</option>
       <option value="MST">Most</option>
       <option value="HARZ">Harzring</option>
       <option value="HDBR">Heidbergring</option>
       <option value="BRN">Brünn</option>
       <option value="LSR">Lausitzring</option>
       <option value="TPZ">Tor Poznań</option>
-      <option value="custom">nicht dabei</option>
     </select>
-    <div id="customContainer" class="hidden">
-      <label>Strecke (manuell)</label>
-      <input type="text" id="streckeCustom" placeholder="z. B. Hockenheim" />
-    </div>
+
     <label>Session</label>
-    <select id="session" required>
-      <option value="TR">Training</option>
-      <option value="Q">Qualifikation</option>
-      <option value="R">Rennen</option>
-      <option value="I">Instruktion</option>
+    <select id="session">
+      <option value="Training">Training</option>
+      <option value="Quali">Qualifikation</option>
+      <option value="Rennen">Rennen</option>
+      <option value="Instruktion">Instruktion</option>
     </select>
-    <label>Datum</label>
-    <input type="date" id="datum" required />
-  </fieldset>
 
-  <!-- Bedingungen -->
-  <fieldset>
-    <legend>Bedingungen</legend>
-    <label>Temperatur (°C)</label>
-    <input type="number" id="temp" placeholder="26" />
-    <label>Wetter</label>
-    <select id="wetter">
-      <option>sonnig</option>
-      <option>bewölkt</option>
-      <option>regnerisch</option>
-      <option>kühl</option>
-      <option>windig</option>
-    </select>
-    <label>Wind</label>
-    <input type="text" id="wind" placeholder="leicht von rechts" />
-  </fieldset>
+    <label>Datum</label><input type="date" id="datum" />
 
-  <!-- Bestzeit -->
-  <fieldset>
-    <legend>Bestzeit</legend>
-    <div style="display:flex;gap:10px;">
-      <div style="flex:1;"><label>Min</label><input type="number" id="min" value="1" min="0" max="9" /></div>
-      <div style="flex:1;"><label>Sek</label><input type="number" id="sek" value="58" min="0" max="59" /></div>
-      <div style="flex:1;"><label>Zehntel</label><input type="number" id="zehntel" value="4" min="0" max="9" /></div>
+    <label>Betriebsstunden</label><input type="number" id="betriebsstunden" />
+
+    <label>Kilometerstand</label><input type="number" id="kilometerstand" />
+
+    <label>Bestzeit</label>
+    <div style="display:flex; gap:6px;">
+      <input type="number" id="bestzeitMin" placeholder="Min" min="0" style="flex:1;" />
+      <input type="number" id="bestzeitSek" placeholder="Sek" min="0" max="59" style="flex:1;" />
+      <input type="number" id="bestzeitZehntel" placeholder="Zehntel" min="0" max="9" style="flex:1;" />
     </div>
   </fieldset>
 
@@ -115,73 +100,458 @@
     <select id="reifenVorne"></select>
     <label>Hinten</label>
     <select id="reifenHinten"></select>
-    <label>Bemerkungen Reifen</label>
-    <textarea id="reifenBem"></textarea>
+    <label>Luftdruck vorne</label>
+    <input type="number" id="luftdruckVorne" step="0.1" />
+    <label>Luftdruck hinten</label>
+    <input type="number" id="luftdruckHinten" step="0.1" />
   </fieldset>
 
-  <!-- Vorderrad (Gabel) -->
-  <fieldset>
-    <legend>Vorderrad (Gabel)</legend>
-    <label>Gabelhöhe (mm)</label><input type="number" id="gabelHoehe" />
-    <label>Gabel SAG statisch (mm)</label><input type="number" id="sagVStatisch" />
-    <label>Gabel SAG dynamisch (mm)</label><input type="number" id="sagVDynamisch" />
-    <label>Federrate (N/mm)</label><input type="number" id="federV" step="0.1" />
-    <label>Federvorspannung (mm)</label><input type="number" id="vorspannungV" />
-    <label>Druckstufe (Umdr)</label><input type="text" id="druckV" />
-    <label>Zugstufe (Umdr)</label><input type="text" id="zugV" />
-    <label>Bemerkungen Gabel</label><textarea id="gabelBem"></textarea>
-  </fieldset>
+  <!-- Gabel + Federbein nebeneinander -->
+  <div style="display:flex; gap:20px;">
+    <fieldset style="flex:1;">
+      <legend>Gabel</legend>
+      <label>Gabelhöhe (mm)</label><input type="number" id="gabelHoehe" />
+      <label>SAG statisch (mm)</label><input type="number" id="sagVStatisch" />
+      <label>SAG dynamisch (mm)</label><input type="number" id="sagVDynamisch" />
+      <label>Federrate (N/mm)</label><input type="number" id="federV" step="0.1" />
+      <label>Federvorspannung (mm)</label><input type="number" id="vorspannungV" />
+      <label>Druckstufe (Umdr)</label><input type="number" id="druckV" step="0.1" />
+      <label>Zugstufe (Umdr)</label><input type="number" id="zugV" step="0.1" />
+      <label>Ölviskosität</label>
+      <select id="oelViskositaet">
+        <option>5W</option><option>7.5W</option><option>10W</option>
+        <option>12.5W</option><option>15W</option><option>17.5W</option><option>20W</option>
+      </select>
+      <label>Luftpolster (mm)</label><input type="number" id="luftpolster" />
+      <label>Bemerkungen Gabel</label><textarea id="gabelBem"></textarea>
+    </fieldset>
 
-  <!-- Hinterrad (Federbein) -->
-  <fieldset>
-    <legend>Hinterrad (Federbein)</legend>
-    <label>Heckhöhe (mm)</label><input type="number" id="heckhoehe" />
-    <label>Federbein SAG statisch (mm)</label><input type="number" id="sagHStatisch" />
-    <label>Federbein SAG dynamisch (mm)</label><input type="number" id="sagHDynamisch" />
-    <label>Federvorspannung (mm)</label><input type="number" id="vorspannungH" />
-    <label>Federrate (N/mm)</label><input type="number" id="federH" step="0.1" />
-    <label>Druckstufe LS/HS</label><input type="text" id="druckH" />
-    <label>Zugstufe</label><input type="text" id="zugH" />
-    <label>Bemerkungen Federbein</label><textarea id="federBem"></textarea>
-  </fieldset>
+    <fieldset style="flex:1;">
+      <legend>Federbein</legend>
+      <label>Heckhöhe (mm)</label><input type="number" id="heckhoehe" />
+      <label>SAG statisch (mm)</label><input type="number" id="sagHStatisch" />
+      <label>SAG dynamisch (mm)</label><input type="number" id="sagHDynamisch" />
+      <label>Federrate (N/mm)</label><input type="number" id="federH" step="0.1" />
+      <label>Federvorspannung (mm)</label><input type="number" id="vorspannungH" />
+      <!-- V2.8 Änderung: Druckstufe getrennt in LS und HS -->
+      <label>Druckstufe (Umdr)</label>
+      <div class="row">
+        <input type="number" id="druckH_ls" step="0.1" placeholder="LS" />
+        <input type="number" id="druckH_hs" step="0.1" placeholder="HS" />
+      </div>
+      <label>Zugstufe (Umdr)</label><input type="number" id="zugH" step="0.1" />
+      <label>Bemerkungen Federbein</label><textarea id="federBem"></textarea>
+    </fieldset>
+  </div>
 
   <!-- Antrieb -->
   <fieldset>
     <legend>Antrieb</legend>
-    <label>Übersetzung (Zähne)</label><input type="text" id="uebersetzung" placeholder="44/16" />
+    <label>Übersetzung (Zähne)</label>
+    <div style="display:flex;gap:6px;">
+      <input type="number" id="ritzel" placeholder="z. B. 16" />
+      <span>/</span>
+      <input type="number" id="kettenrad" placeholder="z. B. 44" />
+    </div>
     <label>Kettenglieder</label><input type="number" id="glieder" />
     <label>Bemerkungen Antrieb</label><textarea id="antriebBem"></textarea>
   </fieldset>
 
-  <!-- Bemerkungen Gesamt -->
+  <!-- Gesamt -->
   <fieldset>
     <legend>Bemerkungen Gesamt</legend>
-    <textarea id="gesamtBem" placeholder="z. B. Vorderrad instabil"></textarea>
+    <textarea id="gesamtBem" placeholder="z. B. Vorderrad instabil"></textarea>
   </fieldset>
 
-  <button type="button" class="btn" onclick="downloadProtokoll()">📝 Datei erstellen</button>
-</form>
+  <div style="margin-top:15px;">
+    <button class="btn" onclick="saveSetup()">💾 Setup speichern</button>
+    <button class="btn" onclick="exportCurrentCSV()">📊 CSV Export (aktuelles Setup)</button>
+  </div>
+</div>
+
+<!-- Historie -->
+<div id="historie" class="page" style="display:none;">
+  <h2>Historie</h2>
+  <div style="margin-bottom:10px;">
+    <button class="btn" onclick="exportCSV()">📊 Export CSV</button>
+  </div>
+  <div id="historieList"></div>
+</div>
+
+<!-- Reifenlager -->
+<div id="reifenlager" class="page" style="display:none;">
+  <h2>Reifenlager</h2>
+  <div style="margin-bottom:10px;">
+    <button class="btn" onclick="saveReifenlager()">💾 Reifenlager speichern</button>
+  </div>
+  <fieldset>
+    <legend>Neuen Reifen hinzufügen</legend>
+    <label>Name</label><input type="text" id="rl_name" />
+    <!-- V2.8 Änderung: nur Breite, Dropdown -->
+    <label>Breite</label>
+    <select id="rl_breite">
+      <option value="">-- wählen --</option>
+      <option>110</option>
+      <option>120</option>
+      <option>140</option>
+      <option>160</option>
+      <option>180</option>
+      <option>190</option>
+    </select>
+    <label>Mischung</label><input type="text" id="rl_mischung" placeholder="z. B. SC1" />
+    <button class="btn" onclick="addReifen()">+ Reifen</button>
+  </fieldset>
+  <div id="reifenlagerList"></div>
+</div>
+
+<!-- Luftdrucktabelle -->
+<!-- Luftdrucktabelle -->
+<div id="luftdruck" class="page" style="display:none;">
+  <h2>Luftdrucktabelle</h2>
+
+  <div style="margin-bottom:10px;">
+    <label>Hersteller</label>
+    <select id="db_hersteller" onchange="filterReifenDB()"></select>
+
+    <label>Dimension</label>
+    <select id="db_dimension" onchange="filterReifenDB()"></select>
+  </div>
+
+  <table border="1" cellspacing="0" cellpadding="6" style="width:100%; text-align:center; margin-bottom:15px;">
+    <thead>
+      <tr>
+        <th>Hersteller</th><th>Modell</th><th>Dimension</th>
+        <th>Vorne warm</th><th>Hinten warm</th><th>Vorne kalt</th><th>Hinten kalt</th>
+      </tr>
+    </thead>
+    <tbody id="reifenDBBody"></tbody>
+  </table>
+
+  <!-- Formular UNTER der Tabelle -->
+  <fieldset style="margin-top:20px;">
+    <legend>Neuen Reifen zur Datenbank hinzufügen</legend>
+    <label>Hersteller</label>
+    <input type="text" id="db_add_hersteller" placeholder="z. B. Michelin" />
+
+    <label>Modell</label>
+    <input type="text" id="db_add_modell" placeholder="z. B. Power Cup 2" />
+
+    <label>Dimension</label>
+    <input type="text" id="db_add_dim" placeholder="z. B. 120/70" />
+
+    <label>Vorne warm</label>
+    <input type="text" id="db_add_vWarm" placeholder="z. B. 2,4" />
+
+    <label>Hinten warm</label>
+    <input type="text" id="db_add_hWarm" placeholder="z. B. 1,9" />
+
+    <label>Vorne kalt</label>
+    <input type="text" id="db_add_vKalt" placeholder="z. B. 2,1" />
+
+    <label>Hinten kalt</label>
+    <input type="text" id="db_add_hKalt" placeholder="z. B. 1,6" />
+
+    <button class="btn" onclick="addReifenDB()">+ Reifen hinzufügen</button>
+  </fieldset>
+</div>
+
 
 <script>
+let setupData = { motorrad:"", fahrwerk:{}, historie:[] };
 let reifenlager = [];
+let reifenCounter = 0;
 
-document.getElementById("datum").valueAsDate = new Date();
+/* ---------- Luftdrucktabelle ---------- */
+let reifenDB = [
+// ================= MICHELIN =================
+{hersteller:"Michelin", modell:"Power Cup 2", dim:"120/70", vWarm:"2,5", hWarm:"2,0", vKalt:"2,2", hKalt:"1,7"},
+{hersteller:"Michelin", modell:"Power Cup 2", dim:"180/55", vWarm:"2,5", hWarm:"2,0", vKalt:"2,2", hKalt:"1,7"},
+{hersteller:"Michelin", modell:"Power Cup 2", dim:"200/55", vWarm:"2,5", hWarm:"2,0", vKalt:"2,2", hKalt:"1,7"},
 
-document.getElementById("strecke").addEventListener("change", () => {
-  document.getElementById("customContainer").classList.toggle("hidden", document.getElementById("strecke").value !== "custom");
-});
+{hersteller:"Michelin", modell:"Power Slick 2", dim:"120/70", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Michelin", modell:"Power Slick 2", dim:"180/55", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Michelin", modell:"Power Slick 2", dim:"200/55", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
 
+{hersteller:"Michelin", modell:"Power Slick Evo", dim:"120/70", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Michelin", modell:"Power Slick Evo", dim:"180/55", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Michelin", modell:"Power Slick Evo", dim:"200/55", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+
+{hersteller:"Michelin", modell:"Power Performance Slick", dim:"120/70", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,3"},
+{hersteller:"Michelin", modell:"Power Performance Slick", dim:"180/55", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,3"},
+{hersteller:"Michelin", modell:"Power Performance Slick", dim:"200/55", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,3"},
+
+{hersteller:"Michelin", modell:"Power GP", dim:"120/70", vWarm:"2,4", hWarm:"2,1", vKalt:"2,1", hKalt:"1,9"},
+{hersteller:"Michelin", modell:"Power GP", dim:"180/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,1", hKalt:"1,9"},
+{hersteller:"Michelin", modell:"Power GP", dim:"200/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,1", hKalt:"1,9"},
+
+{hersteller:"Michelin", modell:"Power GP2", dim:"120/70", vWarm:"2,4", hWarm:"2,1", vKalt:"2,1", hKalt:"1,9"},
+{hersteller:"Michelin", modell:"Power GP2", dim:"190/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,1", hKalt:"1,9"},
+{hersteller:"Michelin", modell:"Power GP2", dim:"200/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,1", hKalt:"1,9"},
+
+{hersteller:"Michelin", modell:"Power 5", dim:"120/70", vWarm:"2,4", hWarm:"2,1", vKalt:"2,1", hKalt:"1,9"},
+{hersteller:"Michelin", modell:"Power 5", dim:"180/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,1", hKalt:"1,9"},
+{hersteller:"Michelin", modell:"Power 5", dim:"200/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,1", hKalt:"1,9"},
+
+{hersteller:"Michelin", modell:"Power 6", dim:"120/70", vWarm:"2,4", hWarm:"2,1", vKalt:"2,1", hKalt:"1,9"},
+{hersteller:"Michelin", modell:"Power 6", dim:"180/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,1", hKalt:"1,9"},
+{hersteller:"Michelin", modell:"Power 6", dim:"200/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,1", hKalt:"1,9"},
+
+
+// ================= PIRELLI =================
+
+// 🔹 Diablo Superbike Slick (Slick NHS)
+{hersteller:"Pirelli", modell:"Diablo Superbike Slick", dim:"110/70", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+{hersteller:"Pirelli", modell:"Diablo Superbike Slick", dim:"120/70", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+{hersteller:"Pirelli", modell:"Diablo Superbike Slick", dim:"125/70", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+{hersteller:"Pirelli", modell:"Diablo Superbike Slick", dim:"140/70", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+{hersteller:"Pirelli", modell:"Diablo Superbike Slick", dim:"160/60", vWarm:"2,3", hWarm:"1,8", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Pirelli", modell:"Diablo Superbike Slick", dim:"180/55", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+{hersteller:"Pirelli", modell:"Diablo Superbike Slick", dim:"180/60", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+{hersteller:"Pirelli", modell:"Diablo Superbike Slick", dim:"190/55", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+{hersteller:"Pirelli", modell:"Diablo Superbike Slick", dim:"190/60", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+{hersteller:"Pirelli", modell:"Diablo Superbike Slick", dim:"200/55", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+{hersteller:"Pirelli", modell:"Diablo Superbike Slick", dim:"200/60", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+{hersteller:"Pirelli", modell:"Diablo Superbike Slick", dim:"200/65", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+
+// 🔹 Diablo Supercorsa V3 SC
+{hersteller:"Pirelli", modell:"Diablo Supercorsa V3 SC", dim:"110/70", vWarm:"2,4", hWarm:"1,8", vKalt:"2,2", hKalt:"1,6"},
+{hersteller:"Pirelli", modell:"Diablo Supercorsa V3 SC", dim:"120/70", vWarm:"2,4", hWarm:"1,8", vKalt:"2,2", hKalt:"1,6"},
+{hersteller:"Pirelli", modell:"Diablo Supercorsa V3 SC", dim:"140/70", vWarm:"2,4", hWarm:"1,8", vKalt:"2,2", hKalt:"1,6"},
+{hersteller:"Pirelli", modell:"Diablo Supercorsa V3 SC", dim:"160/60", vWarm:"2,4", hWarm:"1,8", vKalt:"2,2", hKalt:"1,6"},
+{hersteller:"Pirelli", modell:"Diablo Supercorsa V3 SC", dim:"180/55", vWarm:"2,4", hWarm:"1,8", vKalt:"2,2", hKalt:"1,6"},
+{hersteller:"Pirelli", modell:"Diablo Supercorsa V3 SC", dim:"180/60", vWarm:"2,4", hWarm:"1,8", vKalt:"2,2", hKalt:"1,6"},
+{hersteller:"Pirelli", modell:"Diablo Supercorsa V3 SC", dim:"190/50", vWarm:"2,4", hWarm:"1,8", vKalt:"2,2", hKalt:"1,6"},
+{hersteller:"Pirelli", modell:"Diablo Supercorsa V3 SC", dim:"190/55", vWarm:"2,4", hWarm:"1,8", vKalt:"2,2", hKalt:"1,6"},
+{hersteller:"Pirelli", modell:"Diablo Supercorsa V3 SC", dim:"200/55", vWarm:"2,4", hWarm:"1,8", vKalt:"2,2", hKalt:"1,6"},
+{hersteller:"Pirelli", modell:"Diablo Supercorsa V3 SC", dim:"200/60", vWarm:"2,4", hWarm:"1,8", vKalt:"2,2", hKalt:"1,6"},
+
+// 🔹 Diablo Supercorsa SP (Straße/Track)
+{hersteller:"Pirelli", modell:"Diablo Supercorsa SP", dim:"120/70", vWarm:"2,4", hWarm:"2,0", vKalt:"2,2", hKalt:"1,8"},
+{hersteller:"Pirelli", modell:"Diablo Supercorsa SP", dim:"160/60", vWarm:"2,4", hWarm:"2,0", vKalt:"2,2", hKalt:"1,8"},
+{hersteller:"Pirelli", modell:"Diablo Supercorsa SP", dim:"180/55", vWarm:"2,4", hWarm:"2,0", vKalt:"2,2", hKalt:"1,8"},
+{hersteller:"Pirelli", modell:"Diablo Supercorsa SP", dim:"190/50", vWarm:"2,4", hWarm:"2,0", vKalt:"2,2", hKalt:"1,8"},
+{hersteller:"Pirelli", modell:"Diablo Supercorsa SP", dim:"190/55", vWarm:"2,4", hWarm:"2,0", vKalt:"2,2", hKalt:"1,8"},
+{hersteller:"Pirelli", modell:"Diablo Supercorsa SP", dim:"200/55", vWarm:"2,4", hWarm:"2,0", vKalt:"2,2", hKalt:"1,8"},
+
+// 🔹 Diablo Rosso Corsa II/IV (Hypersport, optional)
+{hersteller:"Pirelli", modell:"Diablo Rosso Corsa II", dim:"120/70", vWarm:"2,4", hWarm:"2,1", vKalt:"2,2", hKalt:"1,9"},
+{hersteller:"Pirelli", modell:"Diablo Rosso Corsa II", dim:"160/60", vWarm:"2,4", hWarm:"2,1", vKalt:"2,2", hKalt:"1,9"},
+{hersteller:"Pirelli", modell:"Diablo Rosso Corsa II", dim:"180/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,2", hKalt:"1,9"},
+{hersteller:"Pirelli", modell:"Diablo Rosso Corsa II", dim:"190/50", vWarm:"2,4", hWarm:"2,1", vKalt:"2,2", hKalt:"1,9"},
+{hersteller:"Pirelli", modell:"Diablo Rosso Corsa II", dim:"190/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,2", hKalt:"1,9"},
+{hersteller:"Pirelli", modell:"Diablo Rosso Corsa II", dim:"200/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,2", hKalt:"1,9"},
+
+
+// ================= BRIDGESTONE =================
+
+// 🔹 Battlax V01 Slick
+{hersteller:"Bridgestone", modell:"Battlax V01 Slick", dim:"120/600", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+{hersteller:"Bridgestone", modell:"Battlax V01 Slick", dim:"190/650", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+
+// 🔹 Battlax V02 VM Slick
+{hersteller:"Bridgestone", modell:"Battlax V02 VM Slick", dim:"120/600", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+{hersteller:"Bridgestone", modell:"Battlax V02 VM Slick", dim:"200/655", vWarm:"2,3", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+
+// 🔹 Battlax V02 Soft
+{hersteller:"Bridgestone", modell:"Battlax V02 Soft", dim:"120/70", vWarm:"2,3", hWarm:"1,8", vKalt:"2,0", hKalt:"1,5"},
+{hersteller:"Bridgestone", modell:"Battlax V02 Soft", dim:"180/55", vWarm:"2,3", hWarm:"1,8", vKalt:"2,0", hKalt:"1,5"},
+{hersteller:"Bridgestone", modell:"Battlax V02 Soft", dim:"190/55", vWarm:"2,3", hWarm:"1,8", vKalt:"2,0", hKalt:"1,5"},
+
+// 🔹 Battlax V02 Medium
+{hersteller:"Bridgestone", modell:"Battlax V02 Medium", dim:"120/70", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Bridgestone", modell:"Battlax V02 Medium", dim:"180/55", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Bridgestone", modell:"Battlax V02 Medium", dim:"190/55", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+
+// 🔹 Battlax S22
+{hersteller:"Bridgestone", modell:"Battlax S22", dim:"180/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,2", hKalt:"1,9"},
+{hersteller:"Bridgestone", modell:"Battlax S22", dim:"190/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,2", hKalt:"1,9"},
+{hersteller:"Bridgestone", modell:"Battlax S22", dim:"200/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,2", hKalt:"1,9"},
+
+// 🔹 Battlax S23
+{hersteller:"Bridgestone", modell:"Battlax S23", dim:"180/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,2", hKalt:"1,9"},
+{hersteller:"Bridgestone", modell:"Battlax S23", dim:"190/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,2", hKalt:"1,9"},
+{hersteller:"Bridgestone", modell:"Battlax S23", dim:"200/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,2", hKalt:"1,9"},
+
+// 🔹 RS10
+{hersteller:"Bridgestone", modell:"RS10", dim:"120/70", vWarm:"2,4", hWarm:"2,0", vKalt:"2,2", hKalt:"1,8"},
+{hersteller:"Bridgestone", modell:"RS10", dim:"190/55", vWarm:"2,4", hWarm:"2,0", vKalt:"2,2", hKalt:"1,8"},
+
+// 🔹 RS11
+{hersteller:"Bridgestone", modell:"RS11", dim:"120/70", vWarm:"2,4", hWarm:"2,1", vKalt:"2,2", hKalt:"1,9"},
+{hersteller:"Bridgestone", modell:"RS11", dim:"200/55", vWarm:"2,4", hWarm:"2,1", vKalt:"2,2", hKalt:"1,9"},
+
+
+
+
+// ================= DUNLOP =================
+{hersteller:"Dunlop", modell:"KR106 NTEC Slick", dim:"120/70", vWarm:"2,4", hWarm:"2,0", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Dunlop", modell:"KR108 NTEC Slick", dim:"195/65", vWarm:"2,4", hWarm:"1,5", vKalt:"2,1", hKalt:"1,3"},
+{hersteller:"Dunlop", modell:"KR108 NTEC Slick", dim:"205/60", vWarm:"2,4", hWarm:"1,5", vKalt:"2,1", hKalt:"1,3"},
+
+{hersteller:"Dunlop", modell:"GP Racer D212 Slick", dim:"120/70", vWarm:"2,4", hWarm:"2,0", vKalt:"2,1", hKalt:"1,7"},
+{hersteller:"Dunlop", modell:"GP Racer D212 Slick", dim:"190/55", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Dunlop", modell:"GP Racer D212 Slick", dim:"200/55", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+
+
+// ================= METZELER =================
+{hersteller:"Metzeler", modell:"Racetec RR Slick", dim:"120/70", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Metzeler", modell:"Racetec RR Slick", dim:"180/55", vWarm:"2,4", hWarm:"1,8", vKalt:"2,1", hKalt:"1,5"},
+{hersteller:"Metzeler", modell:"Racetec RR Slick", dim:"200/60", vWarm:"2,4", hWarm:"1,7", vKalt:"2,1", hKalt:"1,5"},
+
+{hersteller:"Metzeler", modell:"Racetec TD Slick", dim:"120/70", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Metzeler", modell:"Racetec TD Slick", dim:"180/55", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Metzeler", modell:"Racetec TD Slick", dim:"180/60", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Metzeler", modell:"Racetec TD Slick", dim:"190/55", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Metzeler", modell:"Racetec TD Slick", dim:"200/55", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+
+{hersteller:"Metzeler", modell:"Racetec RR", dim:"120/70", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Metzeler", modell:"Racetec RR", dim:"180/55", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Metzeler", modell:"Racetec RR", dim:"180/60", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Metzeler", modell:"Racetec RR", dim:"190/55", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Metzeler", modell:"Racetec RR", dim:"200/55", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+
+
+// ================= CONTINENTAL =================
+{hersteller:"Continental", modell:"Track Slick", dim:"120/70", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Continental", modell:"Track Slick", dim:"180/55", vWarm:"2,4", hWarm:"1,8", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Continental", modell:"Track Slick", dim:"190/60", vWarm:"2,4", hWarm:"1,7", vKalt:"2,1", hKalt:"1,6"},
+
+{hersteller:"Continental", modell:"Race Attack Comp", dim:"120/70", vWarm:"2,4", hWarm:"1,9", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Continental", modell:"Race Attack Comp", dim:"180/55", vWarm:"2,4", hWarm:"1,8", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Continental", modell:"Race Attack Comp", dim:"190/55", vWarm:"2,4", hWarm:"1,8", vKalt:"2,1", hKalt:"1,6"},
+{hersteller:"Continental", modell:"Race Attack Comp", dim:"200/55", vWarm:"2,4", hWarm:"1,8", vKalt:"2,1", hKalt:"1,6"},
+
+{hersteller:"Continental", modell:"ContiAttack SM EVO", dim:"110/70", vWarm:"1,8", hWarm:"2,0", vKalt:"1,6", hKalt:"1,8"},
+{hersteller:"Continental", modell:"ContiAttack SM EVO", dim:"140/70", vWarm:"1,8", hWarm:"2,0", vKalt:"1,6", hKalt:"1,8"},
+
+
+];
+
+
+function addReifenDB(){
+  const hersteller = document.getElementById("db_add_hersteller").value.trim();
+  const modell     = document.getElementById("db_add_modell").value.trim();
+  const dim        = document.getElementById("db_add_dim").value.trim();
+  const vWarm      = document.getElementById("db_add_vWarm").value.trim();
+  const hWarm      = document.getElementById("db_add_hWarm").value.trim();
+  const vKalt      = document.getElementById("db_add_vKalt").value.trim();
+  const hKalt      = document.getElementById("db_add_hKalt").value.trim();
+
+  if(!hersteller || !modell || !dim){
+    alert("Bitte mindestens Hersteller, Modell und Dimension angeben!");
+    return;
+  }
+
+  reifenDB.push({hersteller, modell, dim, vWarm, hWarm, vKalt, hKalt});
+
+  // Eingabefelder leeren
+  ["db_add_hersteller","db_add_modell","db_add_dim",
+   "db_add_vWarm","db_add_hWarm","db_add_vKalt","db_add_hKalt"].forEach(id=>{
+    document.getElementById(id).value = "";
+  });
+
+  renderReifenDB();
+}
+
+
+
+//die Render- und Filterfunktionen ein//
+
+
+function renderReifenDB(){
+  const body = document.getElementById("reifenDBBody");
+  body.innerHTML = "";
+
+  reifenDB.forEach(r => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.hersteller}</td>
+      <td>${r.modell}</td>
+      <td>${r.dim}</td>
+      <td>${r.vWarm}</td>
+      <td>${r.hWarm}</td>
+      <td>${r.vKalt}</td>
+      <td>${r.hKalt}</td>
+    `;
+    body.appendChild(tr);
+  });
+
+  updateHerstellerFilter();
+  updateDimensionFilter();
+}
+
+function filterReifenDB(){
+  const hSel = document.getElementById("db_hersteller").value;
+  const dSel = document.getElementById("db_dimension").value;
+  const body = document.getElementById("reifenDBBody");
+  body.innerHTML = "";
+
+  reifenDB.filter(r => {
+    const breite = r.dim.includes("/") ? r.dim.split("/")[0] : r.dim;
+    return (hSel === "" || r.hersteller === hSel) &&
+           (dSel === "" || breite === dSel);
+  }).forEach(r => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.hersteller}</td>
+      <td>${r.modell}</td>
+      <td>${r.dim}</td>
+      <td>${r.vWarm}</td>
+      <td>${r.hWarm}</td>
+      <td>${r.vKalt}</td>
+      <td>${r.hKalt}</td>
+    `;
+    body.appendChild(tr);
+  });
+}
+
+function updateHerstellerFilter(){
+  const sel = document.getElementById("db_hersteller");
+  sel.innerHTML = "<option value=''>-- alle --</option>";
+  [...new Set(reifenDB.map(r => r.hersteller))].forEach(h => {
+    const opt = document.createElement("option");
+    opt.value = h;
+    opt.textContent = h;
+    sel.appendChild(opt);
+  });
+}
+
+function updateDimensionFilter(){
+  const sel = document.getElementById("db_dimension");
+  sel.innerHTML = "<option value=''>-- alle --</option>";
+  [...new Set(reifenDB.map(r => r.dim.split("/")[0]))].forEach(d => {
+    const opt = document.createElement("option");
+    opt.value = d;
+    opt.textContent = d;
+    sel.appendChild(opt);
+  });
+}
+
+
+/* ---------- Tabs ---------- */
+function showPage(id, btn){
+  document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+  document.getElementById(id).style.display='block';
+  document.querySelectorAll('header button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(id==="historie") renderHistorie();
+  if(id==="reifenlager") renderReifenlager();
+  if(id === "luftdruck") renderReifenDB();
+
+}
+
+/* ---------- Reifenlager ---------- */
 function renderReifenlager(){
-  const list = document.getElementById("reifenlagerList");
-  list.innerHTML = "";
-  reifenlager.forEach((r, i)=>{
-    const div = document.createElement("div");
-    div.className = "reifen-item";
-    div.innerHTML = `<span>${r.name} | Turns: ${r.turns} | Heizzyklen: ${r.heizzyklen}</span>
+  const list=document.getElementById("reifenlagerList");
+  list.innerHTML="";
+  reifenlager.forEach((r,i)=>{
+    const div=document.createElement("div");
+    div.className="reifen-item";
+    div.innerHTML=`<span>${r.id} | ${r.name} ${r.breite}mm ${r.mischung} | Turns: ${r.turns} | Heizzyklen: ${r.heizzyklen}</span>
       <span class="reifen-buttons">
         <button class="green" onclick="updateReifen(${i},1)">+ Turns</button>
-        <button class="green" onclick="updateHeiz(${i},1)">+ Heiz</button>
         <button class="red" onclick="updateReifen(${i},-1)">- Turns</button>
+        <button class="green" onclick="updateHeiz(${i},1)">+ Heiz</button>
         <button class="red" onclick="updateHeiz(${i},-1)">- Heiz</button>
         <button class="gray" onclick="removeReifen(${i})">✖</button>
       </span>`;
@@ -189,110 +559,347 @@ function renderReifenlager(){
   });
   updateDropdowns();
 }
-
-function updateDropdowns(){
-  const vorne = document.getElementById("reifenVorne");
-  const hinten = document.getElementById("reifenHinten");
-  [vorne,hinten].forEach(sel=>{
-    sel.innerHTML = "";
-    reifenlager.forEach(r=>{
-      const opt = document.createElement("option");
-      opt.value = r.name;
-      opt.textContent = r.name;
-      sel.appendChild(opt);
-    });
-  });
-}
-
-function updateReifen(i,val){ reifenlager[i].turns = Math.max(0,reifenlager[i].turns+val); renderReifenlager(); }
-function updateHeiz(i,val){ reifenlager[i].heizzyklen = Math.max(0,reifenlager[i].heizzyklen+val); renderReifenlager(); }
 function addReifen(){
-  const name = document.getElementById("neuerReifenName").value.trim();
-  if(!name) return;
-  reifenlager.push({name, turns:0, heizzyklen:0});
-  document.getElementById("neuerReifenName").value="";
+  const name=document.getElementById("rl_name").value.trim();
+  const breite=document.getElementById("rl_breite").value.trim();
+  const mischung=document.getElementById("rl_mischung").value.trim();
+  if(!name||!breite) return alert("Name und Breite sind erforderlich!");
+  reifenCounter++;
+  const id="R"+String(reifenCounter).padStart(3,"0");
+  reifenlager.push({id,name,breite,mischung,turns:0,heizzyklen:0});
+  document.getElementById("rl_name").value="";
+  document.getElementById("rl_breite").value="";
+  document.getElementById("rl_mischung").value="";
   renderReifenlager();
 }
+function updateReifen(i,val){ reifenlager[i].turns=Math.max(0,reifenlager[i].turns+val); renderReifenlager(); }
+function updateHeiz(i,val){ reifenlager[i].heizzyklen=Math.max(0,reifenlager[i].heizzyklen+val); renderReifenlager(); }
 function removeReifen(i){ reifenlager.splice(i,1); renderReifenlager(); }
 function saveReifenlager(){
-  const blob = new Blob([JSON.stringify(reifenlager,null,2)],{type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "reifenlager.json";
+  const blob=new Blob([JSON.stringify({reifenlager},null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="reifenlager.json";
   a.click();
 }
 function loadReifenlager(event){
-  const file = event.target.files[0];
+  const file=event.target.files[0];
   if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e=>{
-    try{reifenlager = JSON.parse(e.target.result);}catch{alert("Fehler beim Laden"); return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{ reifenlager=JSON.parse(e.target.result).reifenlager||[]; }
+    catch{ alert("Fehler beim Laden"); return; }
+    let max=0;
+    reifenlager.forEach(r=>{
+      const num=parseInt(r.id.replace("R",""))||0;
+      if(num>max) max=num;
+    });
+    reifenCounter=max;
     renderReifenlager();
   };
   reader.readAsText(file);
 }
 
-function downloadProtokoll(){
-  const f = id=>document.getElementById(id)?.value||"-";
-  const datumObj = new Date(f("datum"));
-  const datum = `${datumObj.getDate().toString().padStart(2,"0")}.${(datumObj.getMonth()+1).toString().padStart(2,"0")}.${datumObj.getFullYear().toString().slice(-2)}`;
-  const basisname = `${datumObj.getFullYear()}-${(datumObj.getMonth()+1).toString().padStart(2,"0")}-${datumObj.getDate().toString().padStart(2,"0")}_${f("motorrad")}_${f("strecke")}_${f("session")}`;
+function updateDropdowns(){
+  const vorne=document.getElementById("reifenVorne");
+  const hinten=document.getElementById("reifenHinten");
+  vorne.innerHTML=""; hinten.innerHTML="";
+  
+  const emptyV=document.createElement("option"); 
+  emptyV.value=""; 
+  emptyV.textContent="-- wählen --"; 
+  vorne.appendChild(emptyV);
+  
+  const emptyH=document.createElement("option"); 
+  emptyH.value=""; 
+  emptyH.textContent="-- wählen --"; 
+  hinten.appendChild(emptyH);
 
-  const text = `## Fahrwerksprotokoll
-Datum: ${datum}
-Motorrad: ${f("motorrad")}
-Strecke: ${f("strecke")}
-Session: ${f("session")}
+  reifenlager.forEach(r=>{
+    if(r.breite==="110" || r.breite==="120"){
+      const opt=document.createElement("option");
+      opt.value=r.name;
+      opt.textContent=`${r.name} ${r.breite}mm ${r.mischung}`;
+      opt.dataset.id=r.id;
+      vorne.appendChild(opt);
+    }
+    if(["140","160","180","190"].includes(r.breite)){
+      const opt=document.createElement("option");
+      opt.value=r.name;
+      opt.textContent=`${r.name} ${r.breite}mm ${r.mischung}`;
+      opt.dataset.id=r.id;
+      hinten.appendChild(opt);
+    }
+  });
+}
 
-### Bedingungen
-Temperatur: ${f("temp")} °C
-Wetter: ${f("wetter")}
-Wind: ${f("wind") || "-"}
 
-### Bestzeit
-Min: ${f("min")}
-Sek: ${f("sek")}
-Zehntel: ${f("zehntel")}
 
-### Reifen
-Vorne: ${f("reifenVorne")}
-Hinten: ${f("reifenHinten")}
-Bemerkungen Reifen: ${f("reifenBem") || "-"}
 
-### Vorderrad (Gabel)
-Gabelhöhe: ${f("gabelHoehe")}
-SAG statisch: ${f("sagVStatisch")}
-SAG dynamisch: ${f("sagVDynamisch")}
-Federrate: ${f("federV")}
-Federvorspannung: ${f("vorspannungV")}
-Druckstufe: ${f("druckV")}
-Zugstufe: ${f("zugV")}
-Bemerkungen: ${f("gabelBem") || "-"}
+/* ---------- Setup ---------- */
+function collectFormData(){
+  const vrSel=document.getElementById("reifenVorne");
+  const hrSel=document.getElementById("reifenHinten");
+  const vr={name:vrSel.value||"-",id:vrSel.selectedOptions[0]?.dataset.id||"-"};
+  const hr={name:hrSel.value||"-",id:hrSel.selectedOptions[0]?.dataset.id||"-"};
+  return {
+    betriebsstunden:+document.getElementById("betriebsstunden").value||0,
+    kilometerstand:+document.getElementById("kilometerstand").value||0,
+    bestzeitMin:+document.getElementById("bestzeitMin").value||0,
+    bestzeitSek:+document.getElementById("bestzeitSek").value||0,
+    bestzeitZehntel:+document.getElementById("bestzeitZehntel").value||0,
+    reifenVorne:vr.name, reifenVorneID:vr.id,
+    reifenHinten:hr.name, reifenHintenID:hr.id,
+    luftdruckVorne:+document.getElementById("luftdruckVorne").value||0,
+    luftdruckHinten:+document.getElementById("luftdruckHinten").value||0,
+    gabelHoehe:+document.getElementById("gabelHoehe").value||0,
+    sagVStatisch:+document.getElementById("sagVStatisch").value||0,
+    sagVDynamisch:+document.getElementById("sagVDynamisch").value||0,
+    federV:+document.getElementById("federV").value||"",
+    vorspannungV:+document.getElementById("vorspannungV").value||0,
+    druckV:+document.getElementById("druckV").value||"",
+    zugV:+document.getElementById("zugV").value||"",
+    oelViskositaet:document.getElementById("oelViskositaet").value||"",
+    luftpolster:+document.getElementById("luftpolster").value||0,
+    gabelBem:document.getElementById("gabelBem").value||"",
+    heckhoehe:+document.getElementById("heckhoehe").value||0,
+    sagHStatisch:+document.getElementById("sagHStatisch").value||0,
+    sagHDynamisch:+document.getElementById("sagHDynamisch").value||0,
+    federH:+document.getElementById("federH").value||"",
+    vorspannungH:+document.getElementById("vorspannungH").value||0,
+    druckH_ls:+document.getElementById("druckH_ls").value||"", // V2.8 Änderung
+    druckH_hs:+document.getElementById("druckH_hs").value||"", // V2.8 Änderung
+    zugH:+document.getElementById("zugH").value||0,
+    federBem:document.getElementById("federBem").value||"",
+    ritzel:+document.getElementById("ritzel").value||0,
+    kettenrad:+document.getElementById("kettenrad").value||0,
+    glieder:+document.getElementById("glieder").value||0,
+    antriebBem:document.getElementById("antriebBem").value||"",
+    gesamtBem:document.getElementById("gesamtBem").value||""
+  };
+}
 
-### Hinterrad (Federbein)
-Heckhöhe: ${f("heckhoehe")}
-SAG statisch: ${f("sagHStatisch")}
-SAG dynamisch: ${f("sagHDynamisch")}
-Federvorspannung: ${f("vorspannungH")}
-Federrate: ${f("federH")}
-Druckstufe LS/HS: ${f("druckH")}
-Zugstufe: ${f("zugH")}
-Bemerkungen: ${f("federBem") || "-"}
+/* ---------- Setup speichern ---------- */
+function saveSetup(){
+  const now=new Date();
+  const newData=collectFormData();
+  const motorradAktuell=document.getElementById("motorrad").value||"-";
+  const eintrag={
+    motorrad: motorradAktuell,
+    datum: document.getElementById("datum").value||now.toISOString().split("T")[0],
+    strecke: document.getElementById("strecke").value||"-",
+    session: document.getElementById("session").value||"-",
+    werte: newData,
+    kommentar:newData.gesamtBem
+  };
+  setupData.motorrad=motorradAktuell;
+  setupData.fahrwerk=newData;
+  setupData.historie.push(eintrag);
+  renderHistorie();
+  const blob=new Blob([JSON.stringify(setupData,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`${setupData.motorrad.replace(/\s+/g,"_")}_setup.json`;
+  a.click();
+}
+function loadSetup(){
+  const input=document.createElement("input");
+  input.type="file"; input.accept=".json";
+  input.onchange=e=>{
+    const file=e.target.files[0];
+    if(!file) return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{ setupData=JSON.parse(ev.target.result); }
+      catch{ alert("Fehler beim Laden der Setup-Datei"); return; }
+      const motoSel=document.getElementById("motorrad");
+      if(setupData.motorrad){ motoSel.value=setupData.motorrad; }
+      renderHistorie();
+      if(reifenlager.length===0){
+        alert("Bitte Reifenlager-Datei laden!");
+        document.getElementById("reifenlagerFileTop").click();
+      } else {
+        updateDropdowns();
+      }
+      fillFormFromData(setupData.fahrwerk);
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
 
-### Antrieb
-Übersetzung: ${f("uebersetzung")}
-Kettenglieder: ${f("glieder")}
-Bemerkungen: ${f("antriebBem") || "-"}
+/* ---------- Historie ---------- */
+function renderHistorie(){
+  const c=document.getElementById("historieList");
+  c.innerHTML="";
+  setupData.historie.forEach((e, idx)=>{
+    const div=document.createElement("div");
+    div.className="hist-entry";
+    div.innerHTML=`
+      <div class="hist-meta">
+        ${e.motorrad} | ${e.datum} | ${e.strecke} | ${e.session}
+      </div>
+      <button class="btn" onclick="toggleDetails(${idx})">Details</button>
+      <div id="details-${idx}" class="hist-details" style="display:none;"></div>
+    `;
+    c.appendChild(div);
+  });
+}
 
-### Bemerkungen Gesamt
-${f("gesamtBem") || "-"}`.trim();
 
-  const blob = new Blob([text],{type:"text/markdown"});
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `${basisname}.md`;
-  link.click();
+function getDifferences(curr, prev){
+  if(!curr) return [];
+  if(!prev) return Object.entries(curr)
+    .filter(([k])=>!k.endsWith("ID") && !k.startsWith("bestzeit")) // IDs + Bestzeit raus
+    .map(([k,v])=>`${k}: ${v}`);
+
+  let diffs=[];
+  for(const key in curr){
+    if(curr[key]!==prev[key]){
+      if(key.endsWith("ID")) continue;        // Reifen-ID nicht anzeigen
+      if(key.startsWith("bestzeit")) continue; // Bestzeit nicht anzeigen
+      diffs.push(`${key}: ${prev[key]||"-"} ➝ ${curr[key]}`);
+    }
+  }
+  return diffs;
+}
+
+
+
+function toggleDetails(idx){
+  const box=document.getElementById(`details-${idx}`);
+  if(!box) return;
+  if(box.style.display==="none"){
+    const entry=setupData.historie[idx];
+    const prev=idx>0?setupData.historie[idx-1].werte:null;
+    const diffs=getDifferences(entry.werte, prev);
+    let html="";
+    if(diffs.length===0){
+      html="<em>Keine Änderungen</em>";
+    } else {
+      html="<ul>"+diffs.map(d=>`<li>${d}</li>`).join("")+"</ul>";
+    }
+    if(entry.kommentar){
+      html+=`<p><strong>Kommentar:</strong> ${entry.kommentar}</p>`;
+    }
+    box.innerHTML=html;
+    box.style.display="block";
+  } else {
+    box.style.display="none";
+  }
+}
+
+/* ---------- Export ---------- */
+
+function toComma(val){
+  if(val===null || val===undefined) return "";
+  return String(val).replace(".", ",");
+}
+
+function exportCSV(){
+  const cols=["Motorrad","Datum","Strecke","Session","Bh","Km","Bestzeit","VR Reifen","HR Reifen","LdV","LdH","Gabelhöhe","SAG V stat","SAG V dyn","Federv","VorspV","DruckV","ZugV","Öl","Luftpolster","Heckhöhe","SAG H stat","SAG H dyn","Federh","VorspH","DruckH-LS","DruckH-HS","ZugH","Ritzel","Kettenrad","Glieder","Kommentar"];
+  let csv=cols.join(";")+"\n";
+  setupData.historie.forEach(e=>{
+    const w=e.werte;
+    const bestzeit=`${w.bestzeitMin}:${w.bestzeitSek}.${w.bestzeitZehntel}`;
+    const row=[e.motorrad,e.datum,e.strecke,e.session,
+      toComma(w.betriebsstunden||0), toComma(w.kilometerstand||0), bestzeit,
+      w.reifenVorne||"",w.reifenHinten||"",
+      toComma(w.luftdruckVorne||0),toComma(w.luftdruckHinten||0),
+      toComma(w.gabelHoehe||0),toComma(w.sagVStatisch||0),toComma(w.sagVDynamisch||0),
+      toComma(w.federV||""),toComma(w.vorspannungV||0),toComma(w.druckV||""),toComma(w.zugV||""),
+      w.oelViskositaet||"",toComma(w.luftpolster||0),
+      toComma(w.heckhoehe||0),toComma(w.sagHStatisch||0),toComma(w.sagHDynamisch||0),
+      toComma(w.federH||""),toComma(w.vorspannungH||0),toComma(w.druckH_ls||""),toComma(w.druckH_hs||""),toComma(w.zugH||0),
+      toComma(w.ritzel||0),toComma(w.kettenrad||0),toComma(w.glieder||0),
+      e.kommentar||""];
+    csv+=row.join(";")+"\n";
+  });
+  downloadFile(csv,"text/csv","historie.csv");
+}
+
+function exportCurrentCSV(){
+  const data=collectFormData();
+  const cols=["Motorrad","Datum","Strecke","Session","Bh","Km","Bestzeit","VR Reifen","HR Reifen","LdV","LdH","Kommentar"];
+  const motorrad=document.getElementById("motorrad").value||"-";
+  const datum=document.getElementById("datum").value||new Date().toISOString().split("T")[0];
+  const strecke=document.getElementById("strecke").value||"-";
+  const session=document.getElementById("session").value||"-";
+  const bestzeit=`${data.bestzeitMin}:${data.bestzeitSek}.${data.bestzeitZehntel}`;
+  const row=[motorrad,datum,strecke,session,
+    toComma(data.betriebsstunden||0),toComma(data.kilometerstand||0),bestzeit,
+    data.reifenVorne||"",data.reifenHinten||"",
+    toComma(data.luftdruckVorne||0),toComma(data.luftdruckHinten||0),
+    data.gesamtBem||""];
+  let csv=cols.join(";")+"\n";
+  csv+=row.join(";")+"\n";
+  downloadFile(csv,"text/csv","aktuelles_setup.csv");
+}
+
+function downloadFile(content,type,filename){
+  const blob=new Blob([content],{type});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=filename;
+  a.click();
+}
+
+
+
+
+
+function downloadFile(content,type,filename){
+  const blob=new Blob([content],{type});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=filename;
+  a.click();
+}
+
+/* ---------- Formular füllen ---------- */
+function fillFormFromData(data){
+  if(!data) return;
+  document.getElementById("betriebsstunden").value=data.betriebsstunden||"";
+  document.getElementById("kilometerstand").value=data.kilometerstand||"";
+  document.getElementById("bestzeitMin").value=data.bestzeitMin||"";
+  document.getElementById("bestzeitSek").value=data.bestzeitSek||"";
+  document.getElementById("bestzeitZehntel").value=data.bestzeitZehntel||"";
+  document.getElementById("reifenVorne").value=data.reifenVorne||"";
+  document.getElementById("reifenHinten").value=data.reifenHinten||"";
+  document.getElementById("luftdruckVorne").value=data.luftdruckVorne||"";
+  document.getElementById("luftdruckHinten").value=data.luftdruckHinten||"";
+  document.getElementById("gabelHoehe").value=data.gabelHoehe||"";
+  document.getElementById("sagVStatisch").value=data.sagVStatisch||"";
+  document.getElementById("sagVDynamisch").value=data.sagVDynamisch||"";
+  document.getElementById("federV").value=data.federV||"";
+  document.getElementById("vorspannungV").value=data.vorspannungV||"";
+  document.getElementById("druckV").value=data.druckV||"";
+  document.getElementById("zugV").value=data.zugV||"";
+  document.getElementById("oelViskositaet").value=data.oelViskositaet||"";
+  document.getElementById("luftpolster").value=data.luftpolster||"";
+  document.getElementById("gabelBem").value=data.gabelBem||"";
+  document.getElementById("heckhoehe").value=data.heckhoehe||"";
+  document.getElementById("sagHStatisch").value=data.sagHStatisch||"";
+  document.getElementById("sagHDynamisch").value=data.sagHDynamisch||"";
+  document.getElementById("federH").value=data.federH||"";
+  document.getElementById("vorspannungH").value=data.vorspannungH||"";
+  document.getElementById("druckH_ls").value=data.druckH_ls||""; // V2.8 Änderung
+  document.getElementById("druckH_hs").value=data.druckH_hs||""; // V2.8 Änderung
+  document.getElementById("zugH").value=data.zugH||"";
+  document.getElementById("federBem").value=data.federBem||"";
+  document.getElementById("ritzel").value=data.ritzel||"";
+  document.getElementById("kettenrad").value=data.kettenrad||"";
+  document.getElementById("glieder").value=data.glieder||"";
+  document.getElementById("antriebBem").value=data.antriebBem||"";
+  document.getElementById("gesamtBem").value=data.gesamtBem||"";
 }
 </script>
+
+
+
+
 </body>
 </html>
+
+
+
