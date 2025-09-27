@@ -1,0 +1,242 @@
+:root {
+  --primary:#ff6b00; 
+  --accent:#ffbb33;
+  --bg-dark:#0a0a0a; 
+  --text:#f5f5f5;
+  --card:#1c1c1c; 
+  --input:#2a2a2a;
+}
+
+body {
+  margin:0; 
+  font-family:'Poppins',sans-serif;
+  background:radial-gradient(circle at 30% 20%,#111,#000);
+  color:var(--text); 
+  display:flex; 
+  flex-direction:column; 
+  height:100vh;
+}
+
+/* Header */
+header {
+  display:flex; 
+  align-items:center; 
+  padding:12px; 
+  background:rgba(20,20,20,0.9);
+  box-shadow:0 4px 10px rgba(0,0,0,0.6);
+}
+#menuBtn {
+  font-size:22px; 
+  margin-right:14px; 
+  cursor:pointer; 
+  background:none; 
+  border:none; 
+  color:var(--accent);
+}
+h1 {
+  font-size:18px; 
+  margin:0; 
+  color:var(--primary);
+}
+
+/* Sidebar */
+#sidebar {
+  position:fixed; 
+  top:0; 
+  left:-240px; 
+  width:220px; 
+  height:100%; 
+  background:#111;
+  transition:0.3s ease; 
+  padding:20px; 
+  box-shadow:4px 0 15px rgba(0,0,0,0.6); 
+  z-index:200;
+}
+#sidebar.active {left:0;}
+#sidebar h2 {
+  color:var(--primary); 
+  margin:0 0 20px;
+}
+#sidebar button {
+  display:block; 
+  width:100%; 
+  text-align:left; 
+  padding:12px; 
+  margin:6px 0;
+  background:none; 
+  border:none; 
+  color:#aaa; 
+  font-size:15px; 
+  cursor:pointer;
+}
+#sidebar button:hover {color:#fff;}
+
+/* Overlay */
+#overlay {
+  position:fixed; 
+  top:0; left:0; 
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.6); 
+  backdrop-filter:blur(2px);
+  display:none; 
+  z-index:150;
+}
+#overlay.active {display:block;}
+
+/* Main */
+main {
+  flex:1; 
+  overflow:auto; 
+  padding:20px;
+}
+.page {
+  display:none; 
+  animation:fade 0.3s;
+}
+.page.active {display:block;}
+@keyframes fade {from{opacity:0;} to{opacity:1;}}
+
+/* Bottom Navigation */
+nav {
+  display:flex; 
+  justify-content:space-around;
+  background:rgba(20,20,20,0.95); 
+  backdrop-filter:blur(10px);
+  padding:6px 0; 
+  border-top:2px solid var(--primary);
+}
+nav button {
+  flex:1; 
+  background:none; 
+  border:none; 
+  color:#aaa;
+  font-size:13px; 
+  display:flex; 
+  flex-direction:column; 
+  align-items:center;
+  cursor:pointer; 
+  padding:4px 0;
+}
+nav button span {
+  font-size:20px; 
+  margin-bottom:3px;
+}
+nav button.active {
+  color:var(--primary); 
+  font-weight:600;
+}
+
+/* Cards (Fahrwerk, Historie etc.) */
+fieldset {
+  background:var(--card); 
+  border:none; 
+  border-radius:12px;
+  padding:16px; 
+  margin-bottom:20px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+}
+legend {
+  color:var(--accent); 
+  font-weight:bold;
+}
+input,select,textarea {
+  width:100%; 
+  padding:10px; 
+  margin-bottom:12px;
+  border:none; 
+  border-radius:8px;
+  background:var(--input); 
+  color:var(--text);
+}
+textarea {min-height:60px;}
+
+/* Buttons */
+.btn {
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  border:none; 
+  border-radius:10px;
+  padding:10px 16px; 
+  color:#fff; 
+  cursor:pointer; 
+  margin:5px;
+}
+.btn:hover {
+  box-shadow:0 0 10px var(--accent);
+}
+
+/* Historie & Reifenlager Items */
+.hist-entry, .reifen-item {
+  background:var(--card);
+  border-radius:12px;
+  padding:12px; 
+  margin-bottom:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.4);
+}
+.hist-meta {font-weight:bold; color:var(--accent);}
+.reifen-buttons button {
+  margin-left:4px; 
+  padding:4px 8px; 
+  border-radius:8px; 
+  border:none; 
+  cursor:pointer; 
+  font-size:12px;
+}
+.reifen-buttons button.green{background:#4CAF50;color:white;}
+.reifen-buttons button.red{background:#f44336;color:white;}
+.reifen-buttons button.gray{background:#888;color:white;}
+
+/* Tabelle */
+table {
+  width:100%; 
+  border-collapse:collapse; 
+  border-radius:12px; 
+  overflow:hidden;
+  box-shadow:0 4px 12px rgba(0,0,0,0.5);
+}
+th, td {
+  padding:10px; 
+  text-align:center;
+}
+thead {
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  color:#fff;
+}
+tbody tr:nth-child(even) {background:rgba(255,255,255,0.05);}
+
+/* Sidebar Untermenüs */
+.submenu {
+  margin-left: 15px;
+  display: flex;
+  flex-direction: column;
+}
+.submenu button {
+  font-size: 14px;
+  background: #2a2a2a;
+  color: #f0f0f0;
+  text-align: left;
+  padding: 6px 12px;
+}
+.submenu button:hover {
+  background: #3a3a3a;
+}
+
+/* Sidebar scrollbar machen */
+#sidebar {
+  overflow-y: auto;      /* Scrollen bei Überlänge */
+  max-height: 100vh;     /* Höhe auf Viewport beschränken */
+  padding-bottom: 40px;  /* Platz unten für Sicherheit */
+}
+
+/* Damit Scrollbar nicht hässlich aussieht */
+#sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+#sidebar::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 3px;
+}
+#sidebar::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+
