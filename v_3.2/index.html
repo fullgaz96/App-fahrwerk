@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏍️ Fahrwerks-App v3.2</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <button id="menuBtn">☰</button>
+    <h1>Fahrwerks-App</h1>
+  </header>
+
+  
+  <!-- Sidebar -->
+<aside id="sidebar">
+  <h2>Menü</h2>
+
+<!-- Main Content -->
+<main id="content">
+  <p>Bitte wähle eine Seite im Menü.</p>
+</main>
+
+
+  <!-- Leitfaden -->
+  <button onclick="loadPage('leitfaden.html', this)">📘 Leitfaden</button>
+
+  <!-- Fahrwerk mit Unterpunkten -->
+  <button onclick="toggleSubmenu('fahrwerkSub')">⚙️ Fahrwerk</button>
+  <div id="fahrwerkSub" class="submenu">
+    <button onclick="showPage('fahrwerk', this)">Fahrwerksdaten</button>
+    <button onclick="showPage('historie', this)">Historie</button>
+    <button onclick="showPage('reifenlager', this)">Reifenlager</button>
+    <button onclick="showPage('luftdruck', this)">Luftdrucktabelle</button>
+  </div>
+
+  <!-- Weitere Hauptpunkte -->
+  <button onclick="showPage('strecken', this)">🏁 Meine Strecken</button>
+  <button onclick="showPage('kalender', this)">📅 Mein Kalender</button>
+
+  <!-- Einstellungen -->
+  <button onclick="toggleSubmenu('settingsSub')">⚙️ Einstellungen</button>
+  <div id="settingsSub" class="submenu">
+    <button onclick="showPage('profil', this)">Mein Profil</button>
+    <button onclick="showPage('export', this)">Daten exportieren</button>
+    <button onclick="showPage('import', this)">Daten importieren</button>
+  </div>
+</aside>
+<div id="overlay"></div>
+
+
+  <!-- Main Content -->
+  <main>
+    <!-- Fahrwerk -->
+    <div id="fahrwerk" class="page active">
+      <h2>⚙️ Fahrwerksdaten</h2>
+      <div style="margin-bottom:15px;">
+        <button class="btn" onclick="saveAll()">💾 Speichern</button>
+        <button class="btn" onclick="loadAll()">📂 Laden</button>
+        <button class="btn" onclick="exportCSV('fahrwerk')">📊 Export CSV</button>
+      </div>
+
+      <!-- Grunddaten -->
+      <fieldset>
+        <legend>Grunddaten</legend>
+        <label>Motorrad</label>
+        <select id="motorrad">
+          <option value="GSX-R 750">GSX-R 750</option>
+          <option value="SV 650">SV 650</option>
+          <option value="GS 500E">GS 500E</option>
+        </select>
+        <label>Rennstrecke</label>
+        <select id="strecke">
+          <option value="">-- wählen --</option>
+          <option value="OSL">Oschersleben</option>
+          <option value="SAC">Sachsenring</option>
+          <option value="STC">Spreewaldring</option>
+          <option value="GD">Groß Dölln</option>
+          <option value="MST">Most</option>
+          <option value="HARZ">Harzring</option>
+          <option value="HDBR">Heidbergring</option>
+          <option value="BRN">Brünn</option>
+          <option value="LSR">Lausitzring</option>
+          <option value="TPZ">Tor Poznań</option>
+        </select>
+        <label>Session</label>
+        <select id="session">
+          <option value="Training">Training</option>
+          <option value="Quali">Qualifikation</option>
+          <option value="Rennen">Rennen</option>
+          <option value="Instruktion">Instruktion</option>
+        </select>
+        <label>Datum</label><input type="date" id="datum" />
+        <label>Betriebsstunden</label><input type="number" id="betriebsstunden" />
+        <label>Kilometerstand</label><input type="number" id="kilometerstand" />
+        <label>Bestzeit</label>
+        <div style="display:flex; gap:6px;">
+          <input type="number" id="bestzeitMin" placeholder="Min" min="0" style="flex:1;" />
+          <input type="number" id="bestzeitSek" placeholder="Sek" min="0" max="59" style="flex:1;" />
+          <input type="number" id="bestzeitZehntel" placeholder="Zehntel" min="0" max="9" style="flex:1;" />
+        </div>
+      </fieldset>
+
+      <!-- Reifen -->
+      <fieldset>
+        <legend>Reifen</legend>
+        <label>Vorne</label>
+        <div class="inline-controls">
+          <select id="reifenVorne"></select>
+          <span class="reifen-buttons">
+            <button class="green" onclick="updateSelectedReifen('vorne','turns',1)">+T</button>
+            <button class="red" onclick="updateSelectedReifen('vorne','turns',-1)">-T</button>
+            <button class="green" onclick="updateSelectedReifen('vorne','heizzyklen',1)">+H</button>
+            <button class="red" onclick="updateSelectedReifen('vorne','heizzyklen',-1)">-H</button>
+          </span>
+        </div>
+        <label>Hinten</label>
+        <div class="inline-controls">
+          <select id="reifenHinten"></select>
+          <span class="reifen-buttons">
+            <button class="green" onclick="updateSelectedReifen('hinten','turns',1)">+T</button>
+            <button class="red" onclick="updateSelectedReifen('hinten','turns',-1)">-T</button>
+            <button class="green" onclick="updateSelectedReifen('hinten','heizzyklen',1)">+H</button>
+            <button class="red" onclick="updateSelectedReifen('hinten','heizzyklen',-1)">-H</button>
+          </span>
+        </div>
+        <label>Luftdruck vorne</label>
+        <input type="number" id="luftdruckVorne" step="0.1" />
+        <label>Luftdruck hinten</label>
+        <input type="number" id="luftdruckHinten" step="0.1" />
+      </fieldset>
+
+      <!-- Gabel + Federbein -->
+      <div style="display:flex; gap:20px;">
+        <fieldset style="flex:1;">
+          <legend>Gabel</legend>
+          <label>Gabelhöhe (mm)</label><input type="number" id="gabelHoehe" />
+          <label>SAG statisch (mm)</label><input type="number" id="sagVStatisch" />
+          <label>SAG dynamisch (mm)</label><input type="number" id="sagVDynamisch" />
+          <label>Federrate (N/mm)</label><input type="number" id="federV" step="0.1" />
+          <label>Federvorspannung (mm)</label><input type="number" id="vorspannungV" />
+          <label>Druckstufe (Klicks)</label><input type="number" id="druckV" step="0.1" />
+          <label>Zugstufe (Umdr)</label><input type="number" id="zugV" step="0.1" />
+          <label>Ölviskosität</label>
+          <select id="oelViskositaet">
+            <option>5W</option><option>7.5W</option><option>10W</option>
+            <option>12.5W</option><option>15W</option><option>17.5W</option><option>20W</option>
+          </select>
+          <label>Luftpolster (mm)</label><input type="number" id="luftpolster" />
+          <label>Bemerkungen Gabel</label><textarea id="gabelBem"></textarea>
+        </fieldset>
+
+        <fieldset style="flex:1;">
+          <legend>Federbein</legend>
+          <label>Heckhöhe (mm)</label><input type="number" id="heckhoehe" />
+          <label>SAG statisch (mm)</label><input type="number" id="sagHStatisch" />
+          <label>SAG dynamisch (mm)</label><input type="number" id="sagHDynamisch" />
+          <label>Federrate (N/mm)</label><input type="number" id="federH" step="0.1" />
+          <label>Federvorspannung (mm)</label><input type="number" id="vorspannungH" />
+          <label>Druckstufe (LS/HS Klicks)</label>
+          <div class="row">
+            <input type="number" id="druckH_ls" step="0.1" placeholder="LS" />
+            <input type="number" id="druckH_hs" step="0.1" placeholder="HS" />
+          </div>
+          <label>Zugstufe (Klicks)</label><input type="number" id="zugH" step="0.1" />
+          <label>Bemerkungen Federbein</label><textarea id="federBem"></textarea>
+        </fieldset>
+      </div>
+
+      <!-- Antrieb -->
+      <fieldset>
+        <legend>Antrieb</legend>
+        <label>Übersetzung (Zähne)</label>
+        <div style="display:flex;gap:6px;">
+          <input type="number" id="ritzel" placeholder="z. B. 16" />
+          <span>/</span>
+          <input type="number" id="kettenrad" placeholder="z. B. 44" />
+        </div>
+        <label>Kettenglieder</label><input type="number" id="glieder" />
+        <label>Bemerkungen Antrieb</label><textarea id="antriebBem"></textarea>
+      </fieldset>
+
+      <!-- Gesamt -->
+      <fieldset>
+        <legend>Bemerkungen Gesamt</legend>
+        <textarea id="gesamtBem" placeholder="z. B. Vorderrad instabil"></textarea>
+      </fieldset>
+    </div>
+
+    <!-- Historie -->
+    <div id="historie" class="page">
+      <h2>📜 Historie</h2>
+      <div style="margin-bottom:10px;">
+        <button class="btn" onclick="exportCSV('historie')">📊 Export CSV</button>
+      </div>
+      <div id="historieList"></div>
+    </div>
+
+    <!-- Reifenlager -->
+    <div id="reifenlager" class="page">
+      <h2>🛞 Reifenlager</h2>
+      <fieldset>
+        <legend>Neuen Reifen hinzufügen</legend>
+        <label>Name</label><input type="text" id="rl_name" />
+        <label>Breite</label>
+        <select id="rl_breite">
+          <option value="">-- wählen --</option>
+          <option>110</option><option>120</option><option>140</option>
+          <option>160</option><option>180</option><option>190</option><option>200</option>
+        </select>
+        <label>Mischung</label><input type="text" id="rl_mischung" placeholder="z. B. SC1" />
+        <button class="btn" onclick="addReifen()">+ Reifen</button>
+      </fieldset>
+      <div id="reifenlagerList"></div>
+    </div>
+
+    <!-- Luftdruck -->
+    <div id="luftdruck" class="page">
+      <h2>💨 Luftdrucktabelle</h2>
+      <div style="margin-bottom:10px;">
+        <label>Hersteller</label>
+        <select id="db_hersteller" onchange="filterReifenDB()"></select>
+        <input type="text" id="db_hersteller_new" placeholder="Neuer Hersteller" style="display:none;" />
+        <label>Position</label>
+        <select id="db_position" onchange="filterReifenDB()"></select>
+      </div>
+      <table border="1" cellspacing="0" cellpadding="6" style="width:100%; text-align:center; margin-bottom:15px;">
+        <thead>
+          <tr>
+            <th>Hersteller</th><th>Modell</th><th>Position</th>
+            <th>Dimension</th><th>Warm</th><th>Kalt</th><th>Aktion</th>
+          </tr>
+        </thead>
+        <tbody id="reifenDBBody"></tbody>
+      </table>
+      <fieldset style="margin-top:20px;">
+        <legend>Neuen Reifen zur Datenbank hinzufügen</legend>
+        <label>Hersteller</label>
+        <select id="db_add_hersteller"></select>
+        <input type="text" id="db_add_hersteller_new" placeholder="Neuer Hersteller" style="display:none;" />
+        <label>Modell</label><input type="text" id="db_add_modell" placeholder="z. B. Power Cup 2" />
+        <label>Position</label>
+        <select id="db_add_pos">
+          <option value="Vorne">Vorne</option>
+          <option value="Hinten">Hinten</option>
+        </select>
+        <label>Dimension</label><input type="text" id="db_add_dim" placeholder="z. B. 120/70" />
+        <label>Warm</label><input type="text" id="db_add_warm" placeholder="z. B. 2,4" />
+        <label>Kalt</label><input type="text" id="db_add_kalt" placeholder="z. B. 2,1" />
+        <button class="btn" onclick="addReifenDB()">+ Reifen hinzufügen</button>
+      </fieldset>
+    </div>
+
+    <!-- Leitfaden -->
+    <div id="leitfaden" class="page">
+      <h2>📘 Leitfaden</h2>
+      <p>Hier entsteht der Fahrwerks-Setup-Leitfaden.</p>
+    </div>
+
+    <!-- Einstellungen -->
+    <div id="einstellungen" class="page">
+      <h2>⚙️ Einstellungen</h2>
+      <p>Hier kannst du später Themes, Optionen und mehr einstellen.</p>
+    </div>
+  </main>
+
+  <!-- JS einbinden -->
+  <script src="app.js"></script>
+</body>
+</html>
