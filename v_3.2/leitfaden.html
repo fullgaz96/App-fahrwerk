@@ -1,0 +1,233 @@
+<style>
+  /* Container nur für den Leitfaden */
+  #content {
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: #f5f5f5;
+    padding: 20px;
+    line-height: 1.5em;
+  }
+
+  h2 { color: #ff6b00; }
+
+  /* ===== Level-Accordion ===== */
+  .accordion-header {
+    width: 100%;
+    text-align: left;
+    padding: 12px;
+    margin-top: 8px;
+    background: #2a2a2a;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  .accordion-body {
+    padding: 12px;
+    margin: 6px 0 12px;
+    background: #1c1c1c;
+    border-radius: 8px;
+    display: none;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  .accordion-header::after {
+    content: "▼";
+    position: absolute;
+    right: 14px;
+    transition: transform 0.3s ease;
+  }
+  .accordion-header.active::after {
+    transform: rotate(-180deg);
+  }
+
+  /* Farben für Level */
+  .accordion-header.lvl1 { color: #4caf50; }
+  .accordion-header.lvl1.active { background: #4caf50; color: #fff; }
+  .accordion-header.lvl2 { color: #ff9800; }
+  .accordion-header.lvl2.active { background: #ff9800; color: #fff; }
+  .accordion-header.lvl3 { color: #f44336; }
+  .accordion-header.lvl3.active { background: #f44336; color: #fff; }
+
+  /* ===== Step-Accordion ===== */
+  .step-header {
+    width: 100%;
+    text-align: left;
+    padding: 10px;
+    margin-top: 6px;
+    background: #333;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.3s ease, color 0.3s ease;
+    color: #ffbb33;
+  }
+  .step-header::after {
+    content: "▶";
+    position: absolute;
+    right: 10px;
+    transition: transform 0.3s ease;
+  }
+  .step-header.active::after {
+    transform: rotate(90deg);
+  }
+  .step-header.active {
+    background: var(--primary, #ff6b00);
+    color: #fff;
+  }
+  .step-body {
+    padding: 12px 14px;
+    margin: 4px 0 10px;
+    background: #222;
+    border-left: 4px solid var(--accent, #ffbb33);
+    border-radius: 6px;
+    display: none;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+</style>
+
+<h2>📘 Fahrwerks-Leitfaden</h2>
+
+<div class="accordion">
+  <!-- Level 1 -->
+  <button class="accordion-header lvl1">Level 1 – Einsteiger</button>
+  <div class="accordion-body">
+    <button class="step-header">1. Reifen & Safety</button>
+    <div class="step-body">
+      <p><b>Warum wichtig:</b> Reifen und Technik sind die Grundlage. Fehler hier machen jedes Setup wertlos.</p>
+      <ul>
+        <li>Luftdruck beim Reifenservice / Hersteller einstellen (kalt/warm notieren).</li>
+        <li>Kette prüfen: 3–4 cm Spiel.</li>
+        <li>Bremsen checken: Belagstärke, Dichtigkeit, Hebelweg.</li>
+        <li>Ölverlust prüfen, Schrauben nachsehen.</li>
+      </ul>
+    </div>
+
+    <button class="step-header">2. SAG grob einstellen</button>
+    <div class="step-body">
+      <p><b>Werte:</b> Vorne 30–40 mm, Hinten 25–35 mm.</p>
+      <p><b>So messen:</b> Motorrad entlastet messen → Fahrer drauf → Differenz = SAG.</p>
+      <p><b>Zu viel SAG:</b> zu weich, Vorspannung erhöhen.<br><b>Zu wenig:</b> zu hart, Vorspannung reduzieren.</p>
+    </div>
+
+    <button class="step-header">3. Federweg-Kontrolle (Kabelbinder)</button>
+    <div class="step-body">
+      <p>Kabelbinder an die Gabel. Optimal: 5–10 mm Restfederweg. Ganz unten = auf Block → zu weich.</p>
+    </div>
+
+    <button class="step-header">4. Dämpfung auf Standardwerte</button>
+    <div class="step-body">
+      <p>Alle Klicks vorsichtig bis Anschlag reindrehen, dann auf Herstellerwerte herausdrehen. Keine wilden Experimente.</p>
+    </div>
+
+    <button class="step-header">5. Fokus beim Fahren</button>
+    <div class="step-body">
+      <p>Linie, Blickführung, Körperhaltung, Konstanz. Lieber 5 gleichmäßige Runden als eine schnelle + 4 unsichere.</p>
+    </div>
+
+    <button class="step-header">6. Dokumentation</button>
+    <div class="step-body">
+      <p>Minimal-Logbuch: Datum, Strecke, Reifen, kurzer Eindruck („sicher/unsicher“).</p>
+    </div>
+  </div>
+
+  <!-- Level 2 -->
+  <button class="accordion-header lvl2">Level 2 – Fortgeschrittene</button>
+  <div class="accordion-body">
+    <button class="step-header">1. SAG präzise einstellen</button>
+    <div class="step-body">
+      <p>Vorne 30–35 mm, Hinten 25–30 mm. Mehrfach messen, Feder passend zum Gewicht wählen.</p>
+    </div>
+
+    <button class="step-header">2. Federweg-Nutzung</button>
+    <div class="step-body">
+      <p>Vorne: 5–10 mm Rest nach Bremsung. Hinten: darf gelegentlich Puffer berühren, nicht dauernd.</p>
+    </div>
+
+    <button class="step-header">3. Druckstufe (Compression)</button>
+    <div class="step-body">
+      <p>Vorne: zu weich → taucht tief, zu hart → rutscht über Wellen.<br>Hinten: zu weich → setzt sich stark, zu hart → bockig.</p>
+      <p><b>Vorgehen:</b> von Standard aus in 2-Klick-Schritten variieren, Eindruck notieren.</p>
+    </div>
+
+    <button class="step-header">4. Zugstufe (Rebound)</button>
+    <div class="step-body">
+      <p>Vorne: zu wenig → wippt, zu viel → bleibt unten. Hinten: zu wenig → pumpt, zu viel → klebt.</p>
+      <p><b>Vorgehen:</b> erst Extreme spüren, dann 2-Klick-Schritte.</p>
+    </div>
+
+    <button class="step-header">5. Geometrie feinjustieren</button>
+    <div class="step-body">
+      <p>Gabeldurchsteckung: mehr → wendiger, weniger → stabiler.<br>Heckhöhe: höher = schärferes Einlenken.<br>Radstand: kürzer = agil, länger = stabil.</p>
+    </div>
+
+    <button class="step-header">6. Dokumentation & Iteration</button>
+    <div class="step-body">
+      <p>Notiere: Änderung, Gefühl, Kabelbinderstände, Bestzeit/Delta. Nach mehreren Sessions bestes Setup sichern.</p>
+    </div>
+  </div>
+
+  <!-- Level 3 -->
+  <button class="accordion-header lvl3">Level 3 – Racer</button>
+  <div class="accordion-body">
+    <button class="step-header">1. SAG & Federweg als Referenz</button>
+    <div class="step-body">
+      <p>Zahlen dienen nur als Orientierung. Entscheidend sind Vertrauen und Rundenzeit.</p>
+    </div>
+
+    <button class="step-header">2. Federweg interpretieren</button>
+    <div class="step-body">
+      <p>Immer mit Reifenbild + Datarecording kombinieren. Vorne 5–10 mm Rest, hinten gelegentlich Puffer.</p>
+    </div>
+
+    <button class="step-header">3. Dämpfung feinabstimmen</button>
+    <div class="step-body">
+      <p>High-/Low-Speed getrennt: Low-Speed fürs Nicken, High-Speed für Curbs/Wellen. Kleinste Schritte (1 Klick).</p>
+    </div>
+
+    <button class="step-header">4. Geometrie optimieren</button>
+    <div class="step-body">
+      <p>Lenkkopfwinkel, Nachlauf, Radstand, Heckhöhe bewusst pro Strecke variieren. Kleine Schritte!</p>
+    </div>
+
+    <button class="step-header">5. Analyse-Tools nutzen</button>
+    <div class="step-body">
+      <p>Datarecording: Bremswege, Apex-Speed, Exit-Speed vergleichen. Reifenbild: Gripverlust vs. Temperatur.</p>
+    </div>
+
+    <button class="step-header">6. Streckensetups anlegen</button>
+    <div class="step-body">
+      <p>Pro Strecke eigenes Grundsetup sichern, Versionen anlegen (v1, v2…). Notizen zu Wetter, Reifen, Zeiten.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Level-Accordion
+  document.querySelectorAll(".accordion-header").forEach(header => {
+    header.addEventListener("click", () => {
+      const body = header.nextElementSibling;
+      const isActive = header.classList.contains("active");
+      document.querySelectorAll(".accordion-body").forEach(b => b.style.display = "none");
+      document.querySelectorAll(".accordion-header").forEach(h => h.classList.remove("active"));
+      if (!isActive) {
+        header.classList.add("active");
+        body.style.display = "block";
+      }
+    });
+  });
+
+  // Step-Accordion
+  document.querySelectorAll(".step-header").forEach(step => {
+    step.addEventListener("click", () => {
+      step.classList.toggle("active");
+      const body = step.nextElementSibling;
+      body.style.display = body.style.display === "block" ? "none" : "block";
+    });
+  });
+</script>
