@@ -217,3 +217,86 @@ tbody tr:nth-child(even) {background:rgba(255,255,255,0.05);}
   background: #777;
 }
 
+
+
+  h2 { color: #ff6b00; }
+
+  /* ===== Level-Accordion ===== */
+  .accordion-header {
+    width: 100%;
+    text-align: left;
+    padding: 12px;
+    margin-top: 8px;
+    background: #2a2a2a;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  .accordion-body {
+    padding: 12px;
+    margin: 6px 0 12px;
+    background: #1c1c1c;
+    border-radius: 8px;
+    display: none;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  .accordion-header::after {
+    content: "▼";
+    position: absolute;
+    right: 14px;
+    transition: transform 0.3s ease;
+  }
+  .accordion-header.active::after {
+    transform: rotate(-180deg);
+  }
+
+  /* Farben für Level */
+  .accordion-header.lvl1 { color: #4caf50; }
+  .accordion-header.lvl1.active { background: #4caf50; color: #fff; }
+  .accordion-header.lvl2 { color: #ff9800; }
+  .accordion-header.lvl2.active { background: #ff9800; color: #fff; }
+  .accordion-header.lvl3 { color: #f44336; }
+  .accordion-header.lvl3.active { background: #f44336; color: #fff; }
+
+  /* ===== Step-Accordion ===== */
+  .step-header {
+    width: 100%;
+    text-align: left;
+    padding: 10px;
+    margin-top: 6px;
+    background: #333;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.3s ease, color 0.3s ease;
+    color: #ffbb33;
+  }
+  .step-header::after {
+    content: "▶";
+    position: absolute;
+    right: 10px;
+    transition: transform 0.3s ease;
+  }
+  .step-header.active::after {
+    transform: rotate(90deg);
+  }
+  .step-header.active {
+    background: var(--primary, #ff6b00);
+    color: #fff;
+  }
+  .step-body {
+    padding: 12px 14px;
+    margin: 4px 0 10px;
+    background: #222;
+    border-left: 4px solid var(--accent, #ffbb33);
+    border-radius: 6px;
+    display: none;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
