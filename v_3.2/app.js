@@ -4,6 +4,29 @@ function safeDate(dateStr) {
   return isNaN(t) ? Date.now() : t; // falls ungültig -> heute
 }
 
+// Klick auf Hauptpunkt (Text) -> öffnet erste Unterseite
+function openFirstSubpage(submenuId, firstPage, btn) {
+  const submenu = document.getElementById(submenuId);
+  if (submenu) {
+    // sicherstellen, dass Submenu sichtbar ist
+    submenu.style.display = 'flex';
+
+    // automatisch erste Unterseite anzeigen
+    const firstBtn = submenu.querySelector("button");
+    if (firstBtn) {
+      showPage(firstPage, firstBtn);
+    }
+  }
+}
+
+// Klick auf Pfeil -> nur Menü klappen
+function toggleSubmenu(id, arrow) {
+  const submenu = document.getElementById(id);
+  const isOpen = submenu.style.display === 'flex';
+
+  submenu.style.display = isOpen ? 'none' : 'flex';
+  arrow.textContent = isOpen ? '▶' : '▼';
+}
 
 
 function getVal(id, type = "string") {
@@ -902,8 +925,9 @@ function deleteHistorie(idx){
 
 /* ---------------- Init ---------------- */
 window.onload = () => {
-  // startet auf Fahrwerk-Seite
-  showPage("fahrwerk");
+  // startet auf Anleitung-Seite
+  showPage("anleitung");
+
 
 
   // alte Init-Aufrufe von v3.1.1
