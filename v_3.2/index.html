@@ -43,8 +43,9 @@
   <button onclick="showPage('strecken', this)">🏁 Meine Strecken</button>
   <button onclick="showPage('kalender', this)">📅 Mein Kalender</button>
 
-  <!-- Einstellungen -->
-  <button onclick="toggleSubmenu('settingsSub')">⚙️ Einstellungen</button>
+ <!-- Einstellungen -->
+<button onclick="showPage('einstellungen', this)">⚙️ Einstellungen</button>
+
   
   </div>
 </aside>
@@ -452,11 +453,28 @@
 
     </div>
 
-    <!-- Einstellungen -->
-    <div id="einstellungen" class="page">
-      <h2>⚙️ Einstellungen</h2>
-      <p>Hier kannst du später Themes, Optionen und mehr einstellen.</p>
-    </div>
+   <!-- Einstellungen -->
+<div id="einstellungen" class="page">
+  <h2>⚙️ Einstellungen</h2>
+  <p>Hier kannst du deine persönlichen Profile und Motorräder verwalten
+     sowie die App an deine Vorlieben anpassen.</p>
+
+  <h3>🔹 Geplante Funktionen:</h3>
+  <ul>
+    <li><b>Profile:</b> Fahrer-Profile anlegen (Name, Gewicht, Fahrlevel).</li>
+    <li><b>Motorräder:</b> Mehrere Bikes verwalten und Setups pro Motorrad speichern.</li>
+    <li><b>Design:</b> App-Theme wählen (Dark/Light/Farben).</li>
+  </ul>
+
+  <h3>💡 Weitere Ideen:</h3>
+  <ul>
+    <li><b>Datenexport/-import:</b> Setups und Historie sichern oder wiederherstellen.</li>
+    <li><b>Sprache & Einheiten:</b> Deutsch/Englisch, mm ↔ inch, °C ↔ °F.</li>
+    <li><b>Standardwerte:</b> Standard-Motorrad oder Standard-Strecke festlegen.</li>
+    <li><b>Benachrichtigungen:</b> Hinweise zu Reifenwechsel oder Setup-Updates.</li>
+  </ul>
+</div>
+
   </main>
 
   <!-- JS einbinden -->
