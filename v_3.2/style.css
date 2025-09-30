@@ -184,18 +184,8 @@ tbody tr:nth-child(even) {background:rgba(255,255,255,0.05);}
 /* Sidebar Untermenüs */
 .submenu {
   margin-left: 15px;
-  display: flex;
+  display: none;   /* 👈 ganz wichtig: Start = zugeklappt */
   flex-direction: column;
-}
-.submenu button {
-  font-size: 14px;
-  background: #2a2a2a;
-  color: #f0f0f0;
-  text-align: left;
-  padding: 6px 12px;
-}
-.submenu button:hover {
-  background: #3a3a3a;
 }
 
 /* Sidebar scrollbar machen */
@@ -215,6 +205,33 @@ tbody tr:nth-child(even) {background:rgba(255,255,255,0.05);}
 }
 #sidebar::-webkit-scrollbar-thumb:hover {
   background: #777;
+}
+
+
+.menu-group {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.menu-group .main-btn {
+  flex: 1;
+  text-align: left;
+  padding: 12px;
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 15px;
+  cursor: pointer;
+}
+.menu-group .main-btn:hover { color: #fff; }
+
+.menu-group .arrow {
+  width: 30px;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  color: var(--accent);
+  transition: transform 0.3s ease;
 }
 
 
