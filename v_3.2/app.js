@@ -454,25 +454,6 @@ function saveAll(){
 }
 
 
-function loadPage(page, btn) {
-  fetch(page)
-    .then(response => {
-      if (!response.ok) throw new Error("Seite nicht gefunden");
-      return response.text();
-    })
-    .then(html => {
-      document.getElementById("content").innerHTML = html;
-
-      // Sidebar-Buttons aktualisieren
-      document.querySelectorAll('#sidebar button').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-    })
-    .catch(err => {
-      document.getElementById("content").innerHTML = "<p>Fehler beim Laden der Seite.</p>";
-      console.error(err);
-    });
-}
-
 
 
 function loadAll(){
@@ -896,7 +877,28 @@ function deleteHistorie(idx){
   }
 }
 
+// Level-Accordion
+  document.querySelectorAll(".accordion-header").forEach(header => {
+    header.addEventListener("click", () => {
+      const body = header.nextElementSibling;
+      const isActive = header.classList.contains("active");
+      document.querySelectorAll(".accordion-body").forEach(b => b.style.display = "none");
+      document.querySelectorAll(".accordion-header").forEach(h => h.classList.remove("active"));
+      if (!isActive) {
+        header.classList.add("active");
+        body.style.display = "block";
+      }
+    });
+  });
 
+  // Step-Accordion
+  document.querySelectorAll(".step-header").forEach(step => {
+    step.addEventListener("click", () => {
+      step.classList.toggle("active");
+      const body = step.nextElementSibling;
+      body.style.display = body.style.display === "block" ? "none" : "block";
+    });
+  });
 
 /* ---------------- Init ---------------- */
 window.onload = () => {
@@ -905,7 +907,6 @@ window.onload = () => {
 
 
   // alte Init-Aufrufe von v3.1.1
-  fillFormFromData({});
   renderReifenlager();
   renderHistorie();
   renderReifenDB();
