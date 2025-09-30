@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🏍️ Fahrwerks-App v3.2</title>
+  <title>🏍️ Fahrwerks-App v3.3</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,19 +19,25 @@
 <aside id="sidebar">
   <h2>Menü</h2>
 
+<button onclick="showPage('anleitung', this)">📖 Anleitung</button>
 
 
   <!-- Leitfaden -->
   <button onclick="showPage('leitfaden', this)">📘 Leitfaden</button>
 
   <!-- Fahrwerk mit Unterpunkten -->
-  <button onclick="toggleSubmenu('fahrwerkSub')">⚙️ Fahrwerk</button>
-  <div id="fahrwerkSub" class="submenu">
-    <button onclick="showPage('fahrwerk', this)">Fahrwerksdaten</button>
-    <button onclick="showPage('historie', this)">Historie</button>
-    <button onclick="showPage('reifenlager', this)">Reifenlager</button>
-    <button onclick="showPage('luftdruck', this)">Luftdrucktabelle</button>
-  </div>
+<div class="menu-group">
+  <button class="main-btn" onclick="openFirstSubpage('fahrwerkSub','fahrwerk',this)">
+    ⚙️ Fahrwerk
+  </button>
+  <span class="arrow" onclick="toggleSubmenu('fahrwerkSub', this)">▶</span>
+</div>
+<div id="fahrwerkSub" class="submenu">
+  <button onclick="showPage('fahrwerk', this)">Fahrwerksdaten</button>
+  <button onclick="showPage('historie', this)">Historie</button>
+  <button onclick="showPage('reifenlager', this)">Reifenlager</button>
+  <button onclick="showPage('luftdruck', this)">Luftdrucktabelle</button>
+</div>
 
   <!-- Weitere Hauptpunkte -->
   <button onclick="showPage('strecken', this)">🏁 Meine Strecken</button>
@@ -47,8 +53,88 @@
 
   <!-- Main Content -->
   <main>
+
+
+       <!-- Anleitung -->
+<div id="anleitung" class="page active">
+  <h2>📖 Anleitung</h2>
+  <p>Willkommen in der Fahrwerks-App v3.3! 🎉  
+     Diese App hilft dir, deine Fahrwerks-Setups, Reifen und Trackday-Daten
+     systematisch zu erfassen und auszuwerten.</p>
+
+  <h3>🔹 So benutzt du die App:</h3>
+  <ol>
+    <li>Wähle im Menü <b>Fahrwerk</b> und trage deine aktuellen Werte ein.</li>
+    <li>Speichere deine Daten regelmäßig über <b>💾 Speichern</b>.</li>
+    <li>Vergleiche deine Setups später in der <b>Historie</b>.</li>
+    <li>Behalte den Überblick über deine Reifen im <b>Reifenlager</b>.</li>
+    <li>Nutze die <b>Luftdrucktabelle</b> als Referenz für Herstellerwerte.</li>
+  </ol>
+
+  <h3>🔹 Bereiche im Detail:</h3>
+  <ul>
+    <li><b>Fahrwerk:</b> Alle Setup-Daten von Gabel, Federbein, Antrieb.</li>
+    <li><b>Historie:</b> Vergangene Setups, Unterschiede und Bemerkungen.</li>
+    <li><b>Reifenlager:</b> Verwaltung deiner Reifen inkl. Turns und Heizzyklen.</li>
+    <li><b>Luftdruck:</b> Herstellerangaben für kalten und warmen Druck.</li>
+    <li><b>Strecken:</b> Hier kannst du später deine bevorzugten Rennstrecken erfassen.</li>
+    <li><b>Kalender:</b> Eigene Trackday- und Renntermine verwalten.</li>
+    <li><b>Einstellungen:</b> Später Optionen wie Theme oder Import/Export.</li>
+  </ul>
+
+  <h3>💡 Tipps:</h3>
+  <ul>
+    <li>Notiere Bemerkungen wie „Front instabil“ oder „mehr Grip hinten“ direkt im Fahrwerk-Bereich.</li>
+    <li>Verwende den Kabelbinder an der Gabel, um den genutzten Federweg zu sehen.</li>
+    <li>Dokumentiere kleine Änderungen konsequent – so findest du dein perfektes Setup schneller.</li>
+  </ul>
+</div>
+
+    <!-- Meine Strecken -->
+<div id="strecken" class="page">
+  <h2>🏁 Meine Strecken</h2>
+  <p>Hier kannst du deine gefahrenen Strecken verwalten.</p>
+
+  <h3>🔹 Geplante Funktionen:</h3>
+  <ul>
+    <li>Auswahl der Strecken, die du gefahren bist.</li>
+    <li>Anzeige deiner <b>5 besten Rundenzeiten oder Sessions</b> pro Strecke.</li>
+    <li>Verknüpfung mit den <b>Fahrwerksdaten</b>, um zu sehen, welches Setup zu welcher Zeit geführt hat.</li>
+    <li>Möglichkeit zum <b>Vergleich mit Freunden oder der Community</b> (z. B. Leaderboards).</li>
+  </ul>
+
+  <h3>💡 Weitere Ideen:</h3>
+  <ul>
+    <li><b>Strecken-Notizen:</b> Tipps zu Linien, Schaltpunkten oder Besonderheiten der Strecke.</li>
+    <li><b>Strecken-Setup-Bibliothek:</b> Basis-Setups pro Strecke speichern und schnell wiederfinden.</li>
+    <li><b>Wetterbezug:</b> Rundenzeiten + Setup mit Wetterbedingungen verknüpfen (z. B. heiß, kalt, nass).</li>
+    <li><b>Team-/Community-Funktion:</b> Durchschnittszeiten, Team-Setup-Vergleich, anonyme Benchmarks.</li>
+  </ul>
+</div>
+
+    <!-- Mein Kalender -->
+<div id="kalender" class="page">
+  <h2>📅 Mein Kalender</h2>
+  <p>Hier kannst du deine Trackdays und Rennen eintragen.</p>
+
+  <h3>🔹 Geplante Funktionen:</h3>
+  <ul>
+    <li>Übersicht über deine Trackday- und Renntermine.</li>
+    <li>Monats- oder Wochenansicht für eine bessere Planung.</li>
+  </ul>
+
+  <h3>💡 Weitere Ideen:</h3>
+  <ul>
+    <li><b>Verknüpfung mit Strecken:</b> Eintrag im Kalender (z. B. Oschersleben) verlinkt automatisch zu den Strecken-Infos.</li>
+    <li><b>Setup-Vorbereitung:</b> Automatische Erinnerung an das letzte gefahrene Setup auf dieser Strecke.</li>
+    <li><b>Export/Import:</b> Kalenderdaten später per iCal exportieren oder mit Google/Outlook synchronisieren.</li>
+    <li><b>Teilen:</b> Kalender mit Freunden oder Teammitgliedern freigeben.</li>
+  </ul>
+</div>
+
+
     <!-- Fahrwerk -->
-    <div id="fahrwerk" class="page active">
+    <div id="fahrwerk" class="page">
       <h2>⚙️ Fahrwerksdaten</h2>
       <div style="margin-bottom:15px;">
         <button class="btn" onclick="saveAll()">💾 Speichern</button>
