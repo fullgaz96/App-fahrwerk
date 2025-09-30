@@ -19,14 +19,10 @@
 <aside id="sidebar">
   <h2>Menü</h2>
 
-<!-- Main Content -->
-<main id="content">
-  <p>Bitte wähle eine Seite im Menü.</p>
-</main>
 
 
   <!-- Leitfaden -->
-  <button onclick="loadPage('leitfaden.html', this)">📘 Leitfaden</button>
+  <button onclick="showPage('leitfaden', this)">📘 Leitfaden</button>
 
   <!-- Fahrwerk mit Unterpunkten -->
   <button onclick="toggleSubmenu('fahrwerkSub')">⚙️ Fahrwerk</button>
@@ -43,10 +39,7 @@
 
   <!-- Einstellungen -->
   <button onclick="toggleSubmenu('settingsSub')">⚙️ Einstellungen</button>
-  <div id="settingsSub" class="submenu">
-    <button onclick="showPage('profil', this)">Mein Profil</button>
-    <button onclick="showPage('export', this)">Daten exportieren</button>
-    <button onclick="showPage('import', this)">Daten importieren</button>
+  
   </div>
 </aside>
 <div id="overlay"></div>
@@ -257,7 +250,120 @@
     <!-- Leitfaden -->
     <div id="leitfaden" class="page">
       <h2>📘 Leitfaden</h2>
-      <p>Hier entsteht der Fahrwerks-Setup-Leitfaden.</p>
+      <div class="accordion">
+  <!-- Level 1 -->
+  <button class="accordion-header lvl1">Level 1 – Einsteiger</button>
+  <div class="accordion-body">
+    <button class="step-header">1. Reifen & Safety</button>
+    <div class="step-body">
+      <p><b>Warum wichtig:</b> Reifen und Technik sind die Grundlage. Fehler hier machen jedes Setup wertlos.</p>
+      <ul>
+        <li>Luftdruck beim Reifenservice / Hersteller einstellen (kalt/warm notieren).</li>
+        <li>Kette prüfen: 3–4 cm Spiel.</li>
+        <li>Bremsen checken: Belagstärke, Dichtigkeit, Hebelweg.</li>
+        <li>Ölverlust prüfen, Schrauben nachsehen.</li>
+      </ul>
+    </div>
+
+    <button class="step-header">2. SAG grob einstellen</button>
+    <div class="step-body">
+      <p><b>Werte:</b> Vorne 30–40 mm, Hinten 25–35 mm.</p>
+      <p><b>So messen:</b> Motorrad entlastet messen → Fahrer drauf → Differenz = SAG.</p>
+      <p><b>Zu viel SAG:</b> zu weich, Vorspannung erhöhen.<br><b>Zu wenig:</b> zu hart, Vorspannung reduzieren.</p>
+    </div>
+
+    <button class="step-header">3. Federweg-Kontrolle (Kabelbinder)</button>
+    <div class="step-body">
+      <p>Kabelbinder an die Gabel. Optimal: 5–10 mm Restfederweg. Ganz unten = auf Block → zu weich.</p>
+    </div>
+
+    <button class="step-header">4. Dämpfung auf Standardwerte</button>
+    <div class="step-body">
+      <p>Alle Klicks vorsichtig bis Anschlag reindrehen, dann auf Herstellerwerte herausdrehen. Keine wilden Experimente.</p>
+    </div>
+
+    <button class="step-header">5. Fokus beim Fahren</button>
+    <div class="step-body">
+      <p>Linie, Blickführung, Körperhaltung, Konstanz. Lieber 5 gleichmäßige Runden als eine schnelle + 4 unsichere.</p>
+    </div>
+
+    <button class="step-header">6. Dokumentation</button>
+    <div class="step-body">
+      <p>Minimal-Logbuch: Datum, Strecke, Reifen, kurzer Eindruck („sicher/unsicher“).</p>
+    </div>
+  </div>
+
+  <!-- Level 2 -->
+  <button class="accordion-header lvl2">Level 2 – Fortgeschrittene</button>
+  <div class="accordion-body">
+    <button class="step-header">1. SAG präzise einstellen</button>
+    <div class="step-body">
+      <p>Vorne 30–35 mm, Hinten 25–30 mm. Mehrfach messen, Feder passend zum Gewicht wählen.</p>
+    </div>
+
+    <button class="step-header">2. Federweg-Nutzung</button>
+    <div class="step-body">
+      <p>Vorne: 5–10 mm Rest nach Bremsung. Hinten: darf gelegentlich Puffer berühren, nicht dauernd.</p>
+    </div>
+
+    <button class="step-header">3. Druckstufe (Compression)</button>
+    <div class="step-body">
+      <p>Vorne: zu weich → taucht tief, zu hart → rutscht über Wellen.<br>Hinten: zu weich → setzt sich stark, zu hart → bockig.</p>
+      <p><b>Vorgehen:</b> von Standard aus in 2-Klick-Schritten variieren, Eindruck notieren.</p>
+    </div>
+
+    <button class="step-header">4. Zugstufe (Rebound)</button>
+    <div class="step-body">
+      <p>Vorne: zu wenig → wippt, zu viel → bleibt unten. Hinten: zu wenig → pumpt, zu viel → klebt.</p>
+      <p><b>Vorgehen:</b> erst Extreme spüren, dann 2-Klick-Schritte.</p>
+    </div>
+
+    <button class="step-header">5. Geometrie feinjustieren</button>
+    <div class="step-body">
+      <p>Gabeldurchsteckung: mehr → wendiger, weniger → stabiler.<br>Heckhöhe: höher = schärferes Einlenken.<br>Radstand: kürzer = agil, länger = stabil.</p>
+    </div>
+
+    <button class="step-header">6. Dokumentation & Iteration</button>
+    <div class="step-body">
+      <p>Notiere: Änderung, Gefühl, Kabelbinderstände, Bestzeit/Delta. Nach mehreren Sessions bestes Setup sichern.</p>
+    </div>
+  </div>
+
+  <!-- Level 3 -->
+  <button class="accordion-header lvl3">Level 3 – Racer</button>
+  <div class="accordion-body">
+    <button class="step-header">1. SAG & Federweg als Referenz</button>
+    <div class="step-body">
+      <p>Zahlen dienen nur als Orientierung. Entscheidend sind Vertrauen und Rundenzeit.</p>
+    </div>
+
+    <button class="step-header">2. Federweg interpretieren</button>
+    <div class="step-body">
+      <p>Immer mit Reifenbild + Datarecording kombinieren. Vorne 5–10 mm Rest, hinten gelegentlich Puffer.</p>
+    </div>
+
+    <button class="step-header">3. Dämpfung feinabstimmen</button>
+    <div class="step-body">
+      <p>High-/Low-Speed getrennt: Low-Speed fürs Nicken, High-Speed für Curbs/Wellen. Kleinste Schritte (1 Klick).</p>
+    </div>
+
+    <button class="step-header">4. Geometrie optimieren</button>
+    <div class="step-body">
+      <p>Lenkkopfwinkel, Nachlauf, Radstand, Heckhöhe bewusst pro Strecke variieren. Kleine Schritte!</p>
+    </div>
+
+    <button class="step-header">5. Analyse-Tools nutzen</button>
+    <div class="step-body">
+      <p>Datarecording: Bremswege, Apex-Speed, Exit-Speed vergleichen. Reifenbild: Gripverlust vs. Temperatur.</p>
+    </div>
+
+    <button class="step-header">6. Streckensetups anlegen</button>
+    <div class="step-body">
+      <p>Pro Strecke eigenes Grundsetup sichern, Versionen anlegen (v1, v2…). Notizen zu Wetter, Reifen, Zeiten.</p>
+    </div>
+  </div>
+</div>
+
     </div>
 
     <!-- Einstellungen -->
